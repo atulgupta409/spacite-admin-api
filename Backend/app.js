@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const userRoute = require("./routes/userRoutes");
 const connectDB = require("./config/db");
 const { notFound, errorHandle } = require("./middleware/errorMiddleware");
@@ -26,6 +27,7 @@ const s3Client = new AWS.S3({
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+app.use(cors());
 const multer = require("multer");
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
