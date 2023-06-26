@@ -28,6 +28,12 @@ const s3Client = new AWS.S3({
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cors());
+app.use(function (req, res, next) {
+  res.header("Access-Control-Allow-Origin", "http://15.206.251.201:3000/");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+  res.header("Access-Control-Allow-Headers", "Content-Type");
+  next();
+});
 const multer = require("multer");
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
