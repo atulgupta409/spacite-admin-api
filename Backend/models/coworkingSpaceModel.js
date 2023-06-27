@@ -22,6 +22,7 @@ const coworkingSpaceModel = mongoose.Schema(
       title: { type: String },
       description: { type: String },
       robots: String,
+      index: Boolean,
       keywords: String,
       url: String,
       status: {
