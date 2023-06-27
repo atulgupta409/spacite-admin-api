@@ -6,6 +6,7 @@ const seoModel = mongoose.Schema(
     title: { type: String, required: true },
     description: { type: String, required: true },
     robots: String,
+    index: Boolean,
     keywords: String,
     url: String,
     footer_title: String,

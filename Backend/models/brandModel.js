@@ -28,6 +28,7 @@ const brandModel = mongoose.Schema(
       footer_title: String,
       footer_description: String,
       robots: String,
+      index: Boolean,
       keywords: String,
       url: String,
       status: {
