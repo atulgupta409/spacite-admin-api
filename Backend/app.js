@@ -32,19 +32,32 @@ app.use(cors());
 const multer = require("multer");
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
+
+const allowedFormats = ["image/jpeg", "image/png", "image/svg+xml"];
+
 app.post("/upload-image", upload.array("files"), (req, res) => {
-  const promise_array = [];
+  const promiseArray = [];
+
   req.files.forEach((file) => {
-    const params = {
-      Acl: "public-read",
-      Bucket: process.env.BUCKET_NAME,
-      Key: "" + `image-${Date.now()}.jpeg`,
-      Body: file.buffer,
-    };
-    const putObjectPromise = s3Client.upload(params).promise();
-    promise_array.push(putObjectPromise);
+    // Check if the file format is allowed
+    if (allowedFormats.includes(file.mimetype)) {
+      const params = {
+        Acl: "public-read",
+        Bucket: process.env.BUCKET_NAME,
+        Key: `image-${Date.now()}.${file.originalname.split(".").pop()}`,
+        Body: file.buffer,
+      };
+
+      const putObjectPromise = s3Client.upload(params).promise();
+      promiseArray.push(putObjectPromise);
+    } else {
+      console.log(
+        `Skipping file ${file.originalname} due to unsupported format.`
+      );
+    }
   });
-  Promise.all(promise_array)
+
+  Promise.all(promiseArray)
     .then((values) => {
       console.log(values);
       const urls = values.map((value) => value.Location);
@@ -55,14 +68,6 @@ app.post("/upload-image", upload.array("files"), (req, res) => {
       console.log(err);
       res.status(500).send(err);
     });
-});
-app.get("/get-image", (req, res) => {
-  // console.log(req.query);
-  const query = req.query;
-  s3Client.getObject(query, (err, data) => {
-    if (err) return res.status(400).send("Failed to get object");
-    res.send(data);
-  });
 });
 
 app.get("/", (req, res) => {
