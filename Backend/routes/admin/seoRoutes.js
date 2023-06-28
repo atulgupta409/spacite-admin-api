@@ -1,12 +1,12 @@
 const express = require("express");
-const { protect } = require("../middleware/authMiddleware");
+const { protect } = require("../../middleware/authMiddleware");
 const {
   getSeo,
   postSeo,
   addOrEditSeo,
   deleteSeo,
   getSeoById,
-} = require("../controllers/seoController");
+} = require("../../controllers/admin/seoController");
 const router = express.Router();
 
 router

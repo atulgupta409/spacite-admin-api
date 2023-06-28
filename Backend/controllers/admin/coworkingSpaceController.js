@@ -1,5 +1,5 @@
 const asyncHandler = require("express-async-handler");
-const CoworkingSpace = require("../models/coworkingSpaceModel");
+const CoworkingSpace = require("../../models/coworkingSpaceModel");
 
 const postWorkSpaces = asyncHandler(async (req, res) => {
   const {

@@ -1,5 +1,5 @@
 const asyncHandler = require("express-async-handler");
-const Country = require("../models/countryModel");
+const Country = require("../../models/countryModel");
 // const generateToken = require("../config/jwtToken");
 
 const getCountries = asyncHandler(async (req, res) => {

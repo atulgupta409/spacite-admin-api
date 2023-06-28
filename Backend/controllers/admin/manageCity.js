@@ -1,5 +1,5 @@
 const asyncHandler = require("express-async-handler");
-const City = require("../models/cityModel");
+const City = require("../../models/cityModel");
 
 const postCity = asyncHandler(async (req, res) => {
   const { name, description, country, state } = req.body;

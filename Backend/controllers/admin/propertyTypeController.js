@@ -1,5 +1,5 @@
 const asyncHandler = require("express-async-handler");
-const PropertyType = require("../models/propertyTypeModel");
+const PropertyType = require("../../models/propertyTypeModel");
 
 const getPropertyTypes = asyncHandler(async (req, res) => {
   await PropertyType.find()

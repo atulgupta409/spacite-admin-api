@@ -1,10 +1,10 @@
 const express = require("express");
-const { protect } = require("../middleware/authMiddleware");
+const { protect } = require("../../middleware/authMiddleware");
 const {
   getAmenities,
   postAmenities,
   deleteAmenities,
-} = require("../controllers/amenitiesController");
+} = require("../../controllers/admin/amenitiesController");
 const router = express.Router();
 
 router

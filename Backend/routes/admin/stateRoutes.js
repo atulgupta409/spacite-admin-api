@@ -1,12 +1,12 @@
 const express = require("express");
-const { protect } = require("../middleware/authMiddleware");
+const { protect } = require("../../middleware/authMiddleware");
 const {
   getState,
   postState,
   addOrEditState,
   deleteState,
   getStateByCountry,
-} = require("../controllers/stateController");
+} = require("../../controllers/admin/stateController");
 const router = express.Router();
 
 router

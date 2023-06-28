@@ -1,18 +1,18 @@
 const express = require("express");
 const cors = require("cors");
-const userRoute = require("./routes/userRoutes");
+const userRoute = require("./routes/admin/userRoutes");
 const connectDB = require("./config/db");
 const { notFound, errorHandle } = require("./middleware/errorMiddleware");
-const countryRoute = require("./routes/countryRoutes");
-const stateRoute = require("./routes/stateRoutes");
-const imageUploadRouter = require("./routes/imageUploadRoutes");
-const cityRouter = require("./routes/cityRoutes");
-const microlocationRouter = require("./routes/microLocationRoutes");
-const amenityRouter = require("./routes/amenitiesRoutes");
-const propertytypeRouter = require("./routes/propertyTypeRoutes");
-const seoRouter = require("./routes/seoRoutes");
-const brandRouter = require("./routes/brandRoutes");
-const workSpaceRouter = require("./routes/coworkingSpaceRoutes");
+const countryRoute = require("./routes/admin/countryRoutes");
+const stateRoute = require("./routes/admin/stateRoutes");
+const imageUploadRouter = require("./routes/admin/imageUploadRoutes");
+const cityRouter = require("./routes/admin/cityRoutes");
+const microlocationRouter = require("./routes/admin/microLocationRoutes");
+const amenityRouter = require("./routes/admin/amenitiesRoutes");
+const propertytypeRouter = require("./routes/admin/propertyTypeRoutes");
+const seoRouter = require("./routes/admin/seoRoutes");
+const brandRouter = require("./routes/admin/brandRoutes");
+const workSpaceRouter = require("./routes/admin/coworkingSpaceRoutes");
 const app = express();
 const AWS = require("aws-sdk");
 require("dotenv").config();
@@ -88,4 +88,7 @@ app.use("/api/workSpace", workSpaceRouter);
 app.use(notFound);
 app.use(errorHandle);
 
-app.listen(process.env.PORT, console.log("server started on 8000"));
+app.listen(
+  process.env.PORT,
+  console.log(`server started on ${process.env.PORT}`)
+);

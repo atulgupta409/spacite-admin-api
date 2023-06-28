@@ -1,10 +1,10 @@
 const express = require("express");
-const { protect } = require("../middleware/authMiddleware");
+const { protect } = require("../../middleware/authMiddleware");
 const {
   getPropertyTypes,
   postPropertyTypes,
   deletePropertyTypes,
-} = require("../controllers/propertyTypeController");
+} = require("../../controllers/admin/propertyTypeController");
 const router = express.Router();
 
 router

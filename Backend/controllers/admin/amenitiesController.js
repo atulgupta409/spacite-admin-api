@@ -1,5 +1,5 @@
 const asyncHandler = require("express-async-handler");
-const Amenity = require("../models/amenitiesModel");
+const Amenity = require("../../models/amenitiesModel");
 
 const getAmenities = asyncHandler(async (req, res) => {
   await Amenity.find()

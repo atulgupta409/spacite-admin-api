@@ -1,5 +1,5 @@
 const express = require("express");
-const { protect } = require("../middleware/authMiddleware");
+const { protect } = require("../../middleware/authMiddleware");
 const {
   getCountries,
   postCountry,
@@ -8,7 +8,7 @@ const {
   toggleCountryStatus,
   deleteCountry,
   s,
-} = require("../controllers/manageCountry");
+} = require("../../controllers/admin/manageCountry");
 const router = express.Router();
 
 router
