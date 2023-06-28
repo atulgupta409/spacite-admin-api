@@ -4,9 +4,9 @@ const {
   multipleUploadImage,
   getImages,
   deleteImages,
-} = require("../controllers/imageUploadController");
+} = require("../../controllers/admin/imageUploadController");
 
-const { protect } = require("../middleware/authMiddleware");
+const { protect } = require("../../middleware/authMiddleware");
 const router = express.Router();
 
 router.route("/upload").post(uploadImage);

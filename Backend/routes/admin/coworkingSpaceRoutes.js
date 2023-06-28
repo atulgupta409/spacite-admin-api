@@ -1,5 +1,5 @@
 const express = require("express");
-const { protect } = require("../middleware/authMiddleware");
+const { protect } = require("../../middleware/authMiddleware");
 const {
   getWorkSpaces,
   postWorkSpaces,
@@ -8,7 +8,7 @@ const {
   getWorkSpacesById,
   searchWorkSpacesByName,
   changeWorkSpaceStatus,
-} = require("../controllers/coworkingSpaceController");
+} = require("../../controllers/admin/coworkingSpaceController");
 const router = express.Router();
 
 router

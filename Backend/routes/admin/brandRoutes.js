@@ -1,12 +1,12 @@
 const express = require("express");
-const { protect } = require("../middleware/authMiddleware");
+const { protect } = require("../../middleware/authMiddleware");
 const {
   getBrand,
   postBrand,
   addOrEditBrand,
   deleteBrand,
   getBrandById,
-} = require("../controllers/brandController");
+} = require("../../controllers/admin/brandController");
 const router = express.Router();
 
 router

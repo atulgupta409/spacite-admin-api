@@ -1,11 +1,11 @@
 const express = require("express");
-const { protect } = require("../middleware/authMiddleware");
+const { protect } = require("../../middleware/authMiddleware");
 const {
   getMicroLocation,
   postMicroLocation,
   deleteMicroLocation,
   getMicrolocationByCity,
-} = require("../controllers/microlocationController");
+} = require("../../controllers/admin/microlocationController");
 const router = express.Router();
 
 router
