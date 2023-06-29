@@ -5,7 +5,7 @@ const {
   searchWorkSpacesByName,
   getWorkSpacesbyCity,
   getWorkSpacesbyMicrolocation,
-} = require("../controller/workSpaceController");
+} = require("../../controllers/client/workSpaceController");
 const router = express.Router();
 
 router

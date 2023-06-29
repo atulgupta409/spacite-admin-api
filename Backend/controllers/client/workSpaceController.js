@@ -1,7 +1,7 @@
 const asyncHandler = require("express-async-handler");
-const CoworkingSpace = require("../models/workSpaceModel");
-const City = require("../models/cityModel");
-const MicroLocation = require("../models/microlocationModel");
+const CoworkingSpace = require("../../models/coworkingSpaceModel");
+const City = require("../../models/cityModel");
+const MicroLocation = require("../../models/microLocationModel");
 
 const getWorkSpaces = asyncHandler(async (req, res) => {
   try {

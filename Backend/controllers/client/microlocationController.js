@@ -1,6 +1,6 @@
 const asyncHandler = require("express-async-handler");
-const MicroLocation = require("../models/microlocationModel");
-const City = require("../models/cityModel");
+const MicroLocation = require("../../models/microLocationModel");
+const City = require("../../models/microLocationModel");
 
 const getMicroLocation = asyncHandler(async (req, res) => {
   await MicroLocation.find({})

@@ -1,5 +1,5 @@
 const asyncHandler = require("express-async-handler");
-const City = require("../models/cityModel");
+const City = require("../../models/cityModel");
 
 const getCity = asyncHandler(async (req, res) => {
   await City.find({})

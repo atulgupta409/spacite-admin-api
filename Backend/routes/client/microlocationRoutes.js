@@ -3,7 +3,7 @@ const {
   getMicroLocation,
   getMicrolocationByCity,
   getMicrolocationByCityName,
-} = require("../controller/microlocationController");
+} = require("../../controllers/client/microlocationController");
 const router = express.Router();
 
 router
