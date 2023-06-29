@@ -1,6 +1,6 @@
 const asyncHandler = require("express-async-handler");
-const State = require("../models/stateModel");
-const Country = require("../models/countryModel");
+const State = require("../../models/stateModel");
+const Country = require("../../models/countryModel");
 
 const getState = asyncHandler(async (req, res) => {
   State.find({})
