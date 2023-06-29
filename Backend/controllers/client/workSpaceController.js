@@ -5,7 +5,9 @@ const MicroLocation = require("../../models/microLocationModel");
 
 const getWorkSpaces = asyncHandler(async (req, res) => {
   try {
-    const coworkingSpace = await CoworkingSpace.find();
+    const coworkingSpace = await CoworkingSpace.find()
+      .populate("amenties", "name")
+      .exec();
 
     if (!coworkingSpace) {
       return res.status(404).json({ message: "Coworking space not found" });
@@ -80,7 +82,12 @@ const getWorkSpacesbyMicrolocation = asyncHandler(async (req, res) => {
     const coworkingSpaces = await CoworkingSpace.find({
       "location.micro_location": micro_location._id,
       status: "approve",
-    }).exec();
+    })
+      .populate("amenties", "name")
+      .populate("brand", "name")
+      .populate("location.city", "name")
+      .populate("location.micro_location", "name")
+      .exec();
 
     res.json(coworkingSpaces);
   } catch (error) {
