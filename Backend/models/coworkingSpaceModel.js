@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const coworkingSpaceModel = mongoose.Schema(
   {
-    name: { type: String, required: true },
+    name: { type: String, unique: true, required: true },
     description: String,
     website_Url: String,
     images: [

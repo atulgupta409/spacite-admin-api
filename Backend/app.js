@@ -91,7 +91,7 @@ app.use("/api/seo", seoRouter);
 app.use("/api/brand", brandRouter);
 app.use("/api/workSpace", workSpaceRouter);
 app.use("/api", clientCityRoutes);
-app.use("/api", clientMicrolocationRoutes);
+app.use("/api/micro-location", clientMicrolocationRoutes);
 app.use("/api", clientStateRoutes);
 app.use("/api", clientcountryRoutes);
 app.use("/api", clientWorkSpaceRoutes);
