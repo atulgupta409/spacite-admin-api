@@ -9,7 +9,7 @@ const {
 const router = express.Router();
 
 router
-  .get("/", getWorkSpaces)
+  .get("/workSpace", getWorkSpaces)
   .get("/workspaces/search", searchWorkSpacesByName)
   .get("/:workSpaceId", getWorkSpacesById)
   .get("/coworking/:city", getWorkSpacesbyCity)
