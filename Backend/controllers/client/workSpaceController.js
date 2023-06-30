@@ -7,6 +7,12 @@ const getWorkSpaces = asyncHandler(async (req, res) => {
   try {
     const coworkingSpace = await CoworkingSpace.find()
       .populate("amenties", "name")
+      .populate("brand", "name")
+      .populate("location.city", "name")
+      .populate("location.micro_location", "name")
+      .populate("location.state", "name")
+      .populate("location.country", "name")
+      .populate("plans.category", "name")
       .exec();
 
     if (!coworkingSpace) {
@@ -67,8 +73,37 @@ const getWorkSpacesbyCity = asyncHandler(async (req, res) => {
   }
 });
 
+// const getWorkSpacesbyMicrolocation = asyncHandler(async (req, res) => {
+//   const microlocation = req.params.microlocation;
+
+//   try {
+//     const micro_location = await MicroLocation.findOne({
+//       name: microlocation,
+//     }).exec();
+
+//     if (!micro_location) {
+//       return res.status(404).json({ error: "microlocation not found" });
+//     }
+
+//     const coworkingSpaces = await CoworkingSpace.find({
+//       "location.micro_location": micro_location._id,
+//       status: "approve",
+//     })
+//       .populate("amenties", "name")
+//       .populate("brand", "name")
+//       .populate("location.city", "name")
+//       .populate("location.micro_location", "name")
+//       .exec();
+
+//     res.json(coworkingSpaces);
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// });
 const getWorkSpacesbyMicrolocation = asyncHandler(async (req, res) => {
   const microlocation = req.params.microlocation;
+  const page = parseInt(req.query.page) || 1; // Current page number
+  const limit = parseInt(req.query.limit) || 10; // Number of results per page
 
   try {
     const micro_location = await MicroLocation.findOne({
@@ -79,6 +114,13 @@ const getWorkSpacesbyMicrolocation = asyncHandler(async (req, res) => {
       return res.status(404).json({ error: "microlocation not found" });
     }
 
+    const totalCount = await CoworkingSpace.countDocuments({
+      "location.micro_location": micro_location._id,
+      status: "approve",
+    }).exec();
+
+    const totalPages = Math.ceil(totalCount / limit); // Calculate total number of pages
+
     const coworkingSpaces = await CoworkingSpace.find({
       "location.micro_location": micro_location._id,
       status: "approve",
@@ -87,13 +129,20 @@ const getWorkSpacesbyMicrolocation = asyncHandler(async (req, res) => {
       .populate("brand", "name")
       .populate("location.city", "name")
       .populate("location.micro_location", "name")
+      .skip((page - 1) * limit) // Skip results based on page number
+      .limit(limit) // Limit the number of results per page
       .exec();
 
-    res.json(coworkingSpaces);
+    res.json({
+      totalPages,
+      currentPage: page,
+      coworkingSpaces,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
+
 module.exports = {
   getWorkSpaces,
   getWorkSpacesById,
