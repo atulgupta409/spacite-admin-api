@@ -80,7 +80,11 @@ const getWorkSpacesbyMicrolocation = asyncHandler(async (req, res) => {
     const coworkingSpaces = await CoworkingSpace.find({
       "location.micro_location": micro_location._id,
       status: "approve",
-    }).exec();
+    })
+      .populate("amenties", "name")
+      .populate("location.city", "name")
+      .populate("location.micro_location", "name")
+      .exec();
 
     res.json(coworkingSpaces);
   } catch (error) {

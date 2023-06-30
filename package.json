@@ -1,7 +1,6 @@
 {
   "name": "gp-admin",
   "version": "1.0.0",
-  "description": "",
   "main": "app.js",
   "scripts": {
     "start": "nodemon Backend/app.js"
@@ -23,5 +22,14 @@
     "react-draft-wysiwyg": "^1.15.0",
     "react-scripts": "^5.0.1",
     "scripts": "^0.1.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/atulgupta409/spacite-admin-api.git"
+  },
+  "bugs": {
+    "url": "https://github.com/atulgupta409/spacite-admin-api/issues"
+  },
+  "homepage": "https://github.com/atulgupta409/spacite-admin-api#readme",
+  "description": ""
 }
