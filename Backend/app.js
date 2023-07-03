@@ -19,6 +19,7 @@ const clientMicrolocationRoutes = require("./routes/client/microlocationRoutes")
 const clientStateRoutes = require("./routes/client/stateRoutes");
 const clientWorkSpaceRoutes = require("./routes/client/workSpaceRoutes");
 const ourClientRouter = require("./routes/admin/ourClientRoutes");
+const clientOurClientRouter = require("./routes/client/ourClientRoutes");
 const app = express();
 const AWS = require("aws-sdk");
 require("dotenv").config();
@@ -97,6 +98,7 @@ app.use("/api/micro-location", clientMicrolocationRoutes);
 app.use("/api", clientStateRoutes);
 app.use("/api", clientcountryRoutes);
 app.use("/api", clientWorkSpaceRoutes);
+app.use("/api", clientOurClientRouter);
 app.use(notFound);
 app.use(errorHandle);
 

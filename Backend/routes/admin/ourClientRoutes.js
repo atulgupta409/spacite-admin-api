@@ -8,8 +8,8 @@ const {
 const router = express.Router();
 
 router
-  .get("/clients", getOurClients)
-  .post("/client", postOurClients)
-  .delete("/delete/:id", deleteClient);
+  .get("/clients", protect, getOurClients)
+  .post("/client", protect, postOurClients)
+  .delete("/delete/:id", protect, deleteClient);
 
 module.exports = router;

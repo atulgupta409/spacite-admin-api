@@ -2,7 +2,7 @@ const asyncHandler = require("express-async-handler");
 const City = require("../../models/cityModel");
 
 const getCity = asyncHandler(async (req, res) => {
-  await City.find({})
+  await City.find({ active: true })
     .populate("country", "name")
     .populate("state", "name")
     .then((result) => {

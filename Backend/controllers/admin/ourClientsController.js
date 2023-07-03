@@ -1,5 +1,5 @@
 const asyncHandler = require("express-async-handler");
-const OurClient = require("../../models/ourClient");
+const OurClient = require("../../models/ourClientModel");
 
 const postOurClients = asyncHandler(async (req, res) => {
   const { name, logo_url } = req.body;

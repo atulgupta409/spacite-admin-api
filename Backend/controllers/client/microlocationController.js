@@ -3,7 +3,7 @@ const MicroLocation = require("../../models/microLocationModel");
 const City = require("../../models/cityModel");
 
 const getMicroLocation = asyncHandler(async (req, res) => {
-  await MicroLocation.find({})
+  await MicroLocation.find({ active: true })
     .populate("country", "name")
     .populate("state", "name")
     .populate("city", "name")
@@ -35,6 +35,7 @@ const getMicroBycityName = asyncHandler(async (req, res) => {
 
     const microlocation = await MicroLocation.find({
       city: city._id,
+      active: true,
     }).exec();
 
     res.json(microlocation);

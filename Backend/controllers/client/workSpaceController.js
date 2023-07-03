@@ -93,7 +93,10 @@ const getWorkSpacesbyMicrolocation = asyncHandler(async (req, res) => {
     }).exec();
 
     const totalPages = Math.ceil(totalCount / limit); // Calculate total number of pages
-
+    const count = await CoworkingSpace.countDocuments({
+      "location.micro_location": micro_location._id,
+      status: "approve",
+    });
     const coworkingSpaces = await CoworkingSpace.find({
       "location.micro_location": micro_location._id,
       status: "approve",
@@ -108,6 +111,7 @@ const getWorkSpacesbyMicrolocation = asyncHandler(async (req, res) => {
 
     res.json({
       totalPages,
+      totalCount: count,
       currentPage: page,
       coworkingSpaces,
     });
