@@ -14,6 +14,6 @@ router
   .post("/microbycity", protect, getMicrolocationByCity)
   .post("/microlocations", protect, postMicroLocation)
   .delete("/delete/:microlocationId", protect, deleteMicroLocation)
-  .get("/micro-locations/:cityname", getMicroBycityName);
+  .get("/micro-locations/:cityname", protect, getMicroBycityName);
 
 module.exports = router;

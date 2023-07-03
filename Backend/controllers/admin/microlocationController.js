@@ -49,7 +49,7 @@ const getMicrolocationByCity = asyncHandler(async (req, res) => {
 });
 const getMicroBycityName = asyncHandler(async (req, res) => {
   const cityname = req.params.cityname;
-  console.log(cityname);
+
   try {
     const city = await City.findOne({
       name: cityname,
@@ -58,7 +58,6 @@ const getMicroBycityName = asyncHandler(async (req, res) => {
     if (!city) {
       return res.status(404).json({ error: "city not found" });
     }
-
     const microlocation = await MicroLocation.find({
       city: city._id,
     }).exec();
