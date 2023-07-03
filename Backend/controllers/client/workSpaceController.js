@@ -73,33 +73,6 @@ const getWorkSpacesbyCity = asyncHandler(async (req, res) => {
   }
 });
 
-// const getWorkSpacesbyMicrolocation = asyncHandler(async (req, res) => {
-//   const microlocation = req.params.microlocation;
-
-//   try {
-//     const micro_location = await MicroLocation.findOne({
-//       name: microlocation,
-//     }).exec();
-
-//     if (!micro_location) {
-//       return res.status(404).json({ error: "microlocation not found" });
-//     }
-
-//     const coworkingSpaces = await CoworkingSpace.find({
-//       "location.micro_location": micro_location._id,
-//       status: "approve",
-//     })
-//       .populate("amenties", "name")
-//       .populate("brand", "name")
-//       .populate("location.city", "name")
-//       .populate("location.micro_location", "name")
-//       .exec();
-
-//     res.json(coworkingSpaces);
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// });
 const getWorkSpacesbyMicrolocation = asyncHandler(async (req, res) => {
   const microlocation = req.params.microlocation;
   const page = parseInt(req.query.page) || 1; // Current page number
