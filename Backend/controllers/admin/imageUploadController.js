@@ -30,7 +30,6 @@ const uploadImage = asyncHandler(async (req, res, next) => {
   uploadSingle(req, res, async (err) => {
     if (err)
       return res.status(400).json({ success: false, message: err.message });
-    console.log(req.file);
     res.status(200).json({ data: req.file });
   });
 });
