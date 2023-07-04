@@ -22,7 +22,7 @@ const ourClientRouter = require("./routes/admin/ourClientRoutes");
 const clientRouter = require("./routes/client/ourClientsRoutes");
 const app = express();
 const AWS = require("aws-sdk");
-const contactFormRouter = require("./routes/client/contactFormRouter");
+// const contactFormRouter = require("./routes/client/contactFormRouter");
 require("dotenv").config();
 connectDB();
 
@@ -36,7 +36,7 @@ const s3Client = new AWS.S3({
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(cors());
-app.use(contactFormRouter);
+// app.use(contactFormRouter);
 
 const multer = require("multer");
 const storage = multer.memoryStorage();
