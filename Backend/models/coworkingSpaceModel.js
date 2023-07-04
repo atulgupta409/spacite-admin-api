@@ -5,6 +5,7 @@ const coworkingSpaceModel = mongoose.Schema(
     name: { type: String, unique: true, required: true },
     description: String,
     website_Url: String,
+    added_by: String,
     images: [
       {
         image: String,
@@ -183,6 +184,47 @@ const coworkingSpaceModel = mongoose.Schema(
       ref: "Brand",
     },
     slug: String,
+    priority: {
+      overall: {
+        is_active: {
+          type: Boolean,
+          default: false,
+        },
+        order: {
+          type: Number,
+          default: 1000,
+        },
+      },
+      location: {
+        city: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "City",
+        },
+        is_active: {
+          type: Boolean,
+          default: false,
+        },
+        order: {
+          type: Number,
+          default: 1000,
+        },
+      },
+      micro_location: {
+        name: String,
+        city: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "City",
+        },
+        is_active: {
+          type: Boolean,
+          default: false,
+        },
+        order: {
+          type: Number,
+          default: 1000,
+        },
+      },
+    },
     is_popular: {
       value: {
         type: Boolean,
