@@ -5,7 +5,7 @@ const MicroLocation = require("../../models/microLocationModel");
 
 const getWorkSpaces = asyncHandler(async (req, res) => {
   try {
-    const coworkingSpace = await CoworkingSpace.find()
+    const coworkingSpace = await CoworkingSpace.find({ status: "approve" })
       .populate("amenties", "name")
       .populate("brand", "name")
       .populate("location.city", "name")
@@ -93,7 +93,7 @@ const getWorkSpacesbyMicrolocation = asyncHandler(async (req, res) => {
 
   try {
     const micro_location = await MicroLocation.findOne({
-      name: microlocation,
+      name: { $regex: new RegExp(microlocation, "i") },
     }).exec();
 
     if (!micro_location) {
