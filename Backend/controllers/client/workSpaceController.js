@@ -90,7 +90,7 @@ const getWorkSpacesbyMicrolocation = asyncHandler(async (req, res) => {
   const microlocation = req.params.microlocation;
   const page = parseInt(req.query.page) || 1; // Current page number
   const limit = parseInt(req.query.limit) || 10; // Number of results per page
-
+  
   try {
     const micro_location = await MicroLocation.findOne({
       name: { $regex: new RegExp(microlocation, "i") },
