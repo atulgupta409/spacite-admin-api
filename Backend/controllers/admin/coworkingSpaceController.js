@@ -191,7 +191,8 @@ const changeWorkSpaceOrder = asyncHandler(async (req, res) => {
 
     // Update the priority orders
     if (overall) {
-      coworkingSpace.priority.overall.order = overall;
+      coworkingSpace.priority.overall.order = overall.order;
+      coworkingSpace.priority.overall.is_active = overall.is_active;
     }
     if (location) {
       coworkingSpace.priority.location.order = location;
@@ -209,6 +210,7 @@ const changeWorkSpaceOrder = asyncHandler(async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 const getWorkSpacesbyMicrolocation = asyncHandler(async (req, res) => {
   const microlocation = req.params.microlocation;
   const page = parseInt(req.query.page) || 1; // Current page number
