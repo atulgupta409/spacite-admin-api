@@ -65,7 +65,12 @@ const getWorkSpacesbyCity = asyncHandler(async (req, res) => {
     const coworkingSpaces = await CoworkingSpace.find({
       "location.city": city._id,
       status: "approve",
-    }).exec();
+    })
+      .populate("amenties", "name")
+      .populate("brand", "name")
+      .populate("location.city", "name")
+      .populate("location.micro_location", "name")
+      .exec();
 
     res.json(coworkingSpaces);
   } catch (error) {
