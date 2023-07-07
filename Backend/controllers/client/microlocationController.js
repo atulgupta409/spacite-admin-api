@@ -26,7 +26,7 @@ const getMicroBycityName = asyncHandler(async (req, res) => {
 
   try {
     const city = await City.findOne({
-      name: { $regex: new RegExp(cityname, "i") },
+      name: cityname,
     }).exec();
 
     if (!city) {
