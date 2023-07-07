@@ -57,7 +57,7 @@ const getWorkSpacesbyCity = asyncHandler(async (req, res) => {
 
   try {
     const city = await City.findOne({
-      name: { $regex: new RegExp(cityName, "i") },
+      name: cityName,
     }).exec();
 
     if (!city) {
