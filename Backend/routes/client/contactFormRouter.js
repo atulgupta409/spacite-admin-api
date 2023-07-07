@@ -11,6 +11,7 @@ router.post("/sendmail", (req, res) => {
         user: process.env.EMAIL,
         pass: process.env.PASSWORD,
       },
+      secure: true,
     });
 
     const mailOptions = {
