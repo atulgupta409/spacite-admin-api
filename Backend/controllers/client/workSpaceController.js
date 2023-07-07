@@ -56,7 +56,9 @@ const getWorkSpacesbyCity = asyncHandler(async (req, res) => {
   const cityName = req.params.city;
 
   try {
-    const city = await City.findOne({ name: cityName }).exec();
+    const city = await City.findOne({
+      name: { $regex: new RegExp(cityName, "i") },
+    }).exec();
 
     if (!city) {
       return res.status(404).json({ error: "City not found" });
@@ -95,7 +97,7 @@ const getWorkSpacesbyMicrolocation = asyncHandler(async (req, res) => {
   const microlocation = req.params.microlocation;
   const page = parseInt(req.query.page) || 1; // Current page number
   const limit = parseInt(req.query.limit) || 10; // Number of results per page
-  
+
   try {
     const micro_location = await MicroLocation.findOne({
       name: { $regex: new RegExp(microlocation, "i") },
