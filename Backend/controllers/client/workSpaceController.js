@@ -224,6 +224,28 @@ const getWorkSpacesbyBrand = asyncHandler(async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+const getWorkSpacesbySlug = asyncHandler(async (req, res) => {
+  const slug = req.params.slug;
+
+  try {
+    const coworkingSpaces = await CoworkingSpace.find({
+      slug: slug,
+      status: "approve",
+    })
+      .populate("amenties", "name")
+      .populate("brand", "name")
+      .populate("location.city", "name")
+      .populate("location.micro_location", "name")
+      .populate("location.state", "name")
+      .populate("location.country", "name")
+      .populate("plans.category", "name")
+      .exec();
+
+    res.json(coworkingSpaces);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 module.exports = {
   getWorkSpaces,
   getWorkSpacesById,
@@ -233,4 +255,5 @@ module.exports = {
   getWorkSpacesbyMicrolocationId,
   getWorkSpacesbyCityId,
   getWorkSpacesbyBrand,
+  getWorkSpacesbySlug,
 };
