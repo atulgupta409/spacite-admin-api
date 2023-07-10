@@ -2,6 +2,7 @@ const asyncHandler = require("express-async-handler");
 const CoworkingSpace = require("../../models/coworkingSpaceModel");
 const City = require("../../models/cityModel");
 const MicroLocation = require("../../models/microLocationModel");
+const Brand = require("../../models/brandModel");
 
 const getWorkSpaces = asyncHandler(async (req, res) => {
   try {
@@ -174,6 +175,55 @@ const getWorkSpacesbyMicrolocationId = asyncHandler(async (req, res) => {
   }
 });
 
+const getWorkSpacesbyBrand = asyncHandler(async (req, res) => {
+  const brand = req.params.brand;
+  const page = parseInt(req.query.page) || 1; // Current page number
+  const limit = parseInt(req.query.limit) || 10; // Number of results per page
+
+  try {
+    const all_brand = await Brand.findOne({
+      name: { $regex: new RegExp(brand, "i") },
+    }).exec();
+
+    if (!all_brand) {
+      return res.status(404).json({ error: "brand not found" });
+    }
+
+    const totalCount = await CoworkingSpace.countDocuments({
+      brand: all_brand._id,
+      status: "approve",
+    }).exec();
+
+    const totalPages = Math.ceil(totalCount / limit); // Calculate total number of pages
+    const count = await CoworkingSpace.countDocuments({
+      brand: all_brand._id,
+      status: "approve",
+    });
+    const coworkingSpaces = await CoworkingSpace.find({
+      brand: all_brand._id,
+      status: "approve",
+    })
+      .populate("amenties", "name")
+      .populate("brand", "name")
+      .populate("location.city", "name")
+      .populate("location.micro_location", "name")
+      .populate("location.state", "name")
+      .populate("location.country", "name")
+      .populate("plans.category", "name")
+      .skip((page - 1) * limit) // Skip results based on page number
+      .limit(limit) // Limit the number of results per page
+      .exec();
+
+    res.json({
+      totalPages,
+      totalCount: count,
+      currentPage: page,
+      coworkingSpaces,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 module.exports = {
   getWorkSpaces,
   getWorkSpacesById,
@@ -182,4 +232,5 @@ module.exports = {
   getWorkSpacesbyMicrolocation,
   getWorkSpacesbyMicrolocationId,
   getWorkSpacesbyCityId,
+  getWorkSpacesbyBrand,
 };

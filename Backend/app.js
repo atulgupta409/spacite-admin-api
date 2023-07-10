@@ -20,6 +20,8 @@ const clientStateRoutes = require("./routes/client/stateRoutes");
 const clientWorkSpaceRoutes = require("./routes/client/workSpaceRoutes");
 const ourClientRouter = require("./routes/admin/ourClientRoutes");
 const clientRouter = require("./routes/client/ourClientsRoutes");
+const clientSeoRouter = require("./routes/client/seoRoutes");
+const clientBrandRouter = require("./routes/client/brandRoutes");
 const app = express();
 const AWS = require("aws-sdk");
 const contactFormRouter = require("./routes/client/contactFormRouter");
@@ -101,6 +103,8 @@ app.use("/api", clientStateRoutes);
 app.use("/api", clientcountryRoutes);
 app.use("/api", clientWorkSpaceRoutes);
 app.use("/api/client", clientRouter);
+app.use("/api/seo", clientSeoRouter);
+app.use("/api/brands", clientBrandRouter);
 app.use(notFound);
 app.use(errorHandle);
 
