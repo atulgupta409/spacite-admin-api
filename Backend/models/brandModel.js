@@ -15,6 +15,7 @@ const brandModel = mongoose.Schema(
       default: "coworking",
     },
     image: String,
+    featureImage: String,
     cities: [
       {
         type: mongoose.Schema.Types.ObjectId,
