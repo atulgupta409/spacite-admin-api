@@ -211,6 +211,42 @@ const changeWorkSpaceOrder = asyncHandler(async (req, res) => {
   }
 });
 
+const addPriorityWorkSpaces = asyncHandler(async ({ id, data }) => {
+  try {
+    const { priority } = req.body;
+    const object = priority.overall;
+    if (!data.is_active) {
+      const { priority } = await CoworkingSpace.findOne(
+        { _id: id },
+        { priority: 1 }
+      );
+      const priorityOrder = priority.priority.overall.order;
+      const priorityActive = priority.priority.overall.is_active;
+
+      const condition = {
+        [priorityOrder]: { $gt: priority[overall].order },
+        [priorityActive]: true,
+      };
+      await CoworkingSpace.updateMany(condition, {
+        $inc: {
+          [priorityOrder]: -1,
+        },
+      });
+    }
+    await CoworkingSpace.updateOne(
+      { _id: id },
+      {
+        $set: {
+          [object]: data,
+        },
+      }
+    );
+    return true;
+  } catch (error) {
+    throw error;
+  }
+});
+
 const getWorkSpacesbyMicrolocation = asyncHandler(async (req, res) => {
   const microlocation = req.params.microlocation;
   const page = parseInt(req.query.page) || 1; // Current page number
@@ -267,5 +303,5 @@ module.exports = {
   searchWorkSpacesByName,
   changeWorkSpaceStatus,
   getWorkSpacesbyMicrolocation,
-  changeWorkSpaceOrder,
+  addPriorityWorkSpaces,
 };
