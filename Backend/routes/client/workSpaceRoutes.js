@@ -8,6 +8,7 @@ const {
   getWorkSpacesbyMicrolocationId,
   getWorkSpacesbyCityId,
   getWorkSpacesbyBrand,
+  getWorkSpacesbySlug,
 } = require("../../controllers/client/workSpaceController");
 const router = express.Router();
 
@@ -19,6 +20,7 @@ router
   .get("/coworking-details-byid/:cityId", getWorkSpacesbyCityId)
   .get("/workSpace-details/:microlocation", getWorkSpacesbyMicrolocation)
   .get("/coworking-details/:microlocation", getWorkSpacesbyMicrolocationId)
-  .get("/coworking-details-brand/:brand", getWorkSpacesbyBrand);
+  .get("/coworking-details-brand/:brand", getWorkSpacesbyBrand)
+  .get("/coworking-details-slug/:slug", getWorkSpacesbySlug);
 
 module.exports = router;
