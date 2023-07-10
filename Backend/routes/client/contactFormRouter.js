@@ -3,7 +3,8 @@ const router = express.Router();
 const nodemailer = require("nodemailer");
 
 router.post("/sendmail", (req, res) => {
-  const { name, email, phone, office_type, no_of_seats, move_in } = req.body;
+  const { name, email, phone, office_type, no_of_seats, move_in, query } =
+    req.body;
   try {
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -13,19 +14,33 @@ router.post("/sendmail", (req, res) => {
       },
       secure: true,
     });
+    console.log(query);
+    let emailContent;
+    if (query) {
+      emailContent = `<ul>
+      <li>Name: ${name}</li>
+      <li>Email: ${email}</li>
+      <li>Phone: ${phone}</li>
+      <li>Office Type: ${office_type}</li>
+      <li>No. of seats: ${no_of_seats}</li>
+      <li>Query: ${query}</li>
+    </ul>`;
+    } else {
+      emailContent = `<ul>
+      <li>Name: ${name}</li>
+      <li>Email: ${email}</li>
+      <li>Phone: ${phone}</li>
+      <li>Office Type: ${office_type}</li>
+      <li>No. of seats: ${no_of_seats}</li>
+      <li>Move in: ${move_in}</li>
+    </ul>`;
+    }
 
     const mailOptions = {
       from: email,
       to: process.env.EMAIL,
       subject: "coworking mail",
-      html: `<ul>
-       <li>Name: ${name}</li>
-       <li>Email: ${email}</li>
-       <li>Phone: ${phone}</li>
-       <li>Office Type: ${office_type}</li>
-       <li>No. of seats: ${no_of_seats}</li>
-       <li>Move in: ${move_in}</li>
-      </ul>`,
+      html: emailContent,
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
