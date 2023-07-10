@@ -5,6 +5,6 @@ const {
 
 const router = express.Router();
 
-router.get("/myclient", getOurClients);
+router.get("/our-client", getOurClients);
 
 module.exports = router;
