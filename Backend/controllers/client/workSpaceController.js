@@ -246,6 +246,48 @@ const getWorkSpacesbySlug = asyncHandler(async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+const getWorkSpacesbyLocation = asyncHandler(async (req, res) => {
+  const workspaceSlug = req.params.workspaceSlug;
+
+  CoworkingSpace.findOne({ slug: workspaceSlug })
+    .then((workspace) => {
+      if (!workspace) {
+        return res.status(404).send("Workspace not found");
+      }
+
+      CoworkingSpace.find({
+        _id: { $ne: workspace._id },
+        "location.latitude": {
+          $gte: workspace.location.latitude - 0.027,
+          $lte: workspace.location.latitude + 0.027,
+        },
+        "location.longitude": {
+          $gte: workspace.location.longitude - 0.027,
+          $lte: workspace.location.longitude + 0.027,
+        },
+      })
+        .populate("amenties", "name")
+        .populate("brand", "name")
+        .populate("location.city", "name")
+        .populate("location.micro_location", "name")
+        .then((nearbyWorkspaces) => {
+          const result = {
+            workspace,
+            nearbyCount: nearbyWorkspaces.length,
+            nearbyWorkspaces,
+          };
+          res.json(result);
+        })
+        .catch((error) => {
+          console.error("Error while fetching nearby workspaces", error);
+          res.status(500).send("Internal server error");
+        });
+    })
+    .catch((error) => {
+      console.error("Error while fetching workspace", error);
+      res.status(500).send("Internal server error");
+    });
+});
 module.exports = {
   getWorkSpaces,
   getWorkSpacesById,
@@ -256,4 +298,5 @@ module.exports = {
   getWorkSpacesbyCityId,
   getWorkSpacesbyBrand,
   getWorkSpacesbySlug,
+  getWorkSpacesbyLocation,
 };
