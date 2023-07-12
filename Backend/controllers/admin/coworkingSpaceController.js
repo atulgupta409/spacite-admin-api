@@ -178,55 +178,23 @@ const changeWorkSpaceStatus = asyncHandler(async (req, res) => {
   }
 });
 const changeWorkSpaceOrder = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const { overall, location, micro_location } = req.body;
-
+  const { id, type, data } = req.body;
   try {
-    // Find the coworking space by ID
-    const coworkingSpace = await CoworkingSpace.findById(id);
-
-    if (!coworkingSpace) {
-      return res.status(404).json({ error: "Coworking space not found" });
-    }
-
-    // Update the priority orders
-    if (overall) {
-      coworkingSpace.priority.overall.order = overall.order;
-      coworkingSpace.priority.overall.is_active = overall.is_active;
-    }
-    if (location) {
-      coworkingSpace.priority.location.order = location;
-    }
-    if (micro_location) {
-      coworkingSpace.priority.micro_location.order = micro_location;
-    }
-
-    // Save the updated coworking space
-    await coworkingSpace.save();
-
-    res.json({ message: "Priority orders updated successfully" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-const addPriorityWorkSpaces = asyncHandler(async ({ id, data }) => {
-  try {
-    const { priority } = req.body;
-    const object = priority.overall;
+    let object = _createDynamicPriorityType(type);
     if (!data.is_active) {
       const { priority } = await CoworkingSpace.findOne(
         { _id: id },
         { priority: 1 }
       );
-      const priorityOrder = priority.priority.overall.order;
-      const priorityActive = priority.priority.overall.is_active;
-
+      const priorityOrder = object + ".order";
+      const priorityActive = object + ".is_active";
       const condition = {
-        [priorityOrder]: { $gt: priority[overall].order },
+        [priorityOrder]: { $gt: priority[type].order },
         [priorityActive]: true,
       };
+      if (data.city) {
+        condition["location.city"] = data.city;
+      }
       await CoworkingSpace.updateMany(condition, {
         $inc: {
           [priorityOrder]: -1,
@@ -241,12 +209,28 @@ const addPriorityWorkSpaces = asyncHandler(async ({ id, data }) => {
         },
       }
     );
-    return true;
+    res.status(200).json({
+      message: "Priority Spaces Added",
+    });
   } catch (error) {
     throw error;
   }
 });
-
+const _createDynamicPriorityType = (type) => {
+  let object = "priority.overall";
+  switch (type) {
+    case "location":
+      object = "priority.location";
+      break;
+    case "micro_location":
+      object = "priority.micro_location";
+      break;
+    default:
+      object = "priority.overall";
+      break;
+  }
+  return object;
+};
 const getWorkSpacesbyMicrolocation = asyncHandler(async (req, res) => {
   const microlocation = req.params.microlocation;
   const page = parseInt(req.query.page) || 1; // Current page number
@@ -303,5 +287,5 @@ module.exports = {
   searchWorkSpacesByName,
   changeWorkSpaceStatus,
   getWorkSpacesbyMicrolocation,
-  addPriorityWorkSpaces,
+  changeWorkSpaceOrder,
 };

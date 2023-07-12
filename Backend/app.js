@@ -22,6 +22,7 @@ const ourClientRouter = require("./routes/admin/ourClientRoutes");
 const clientRouter = require("./routes/client/ourClientsRoutes");
 const clientSeoRouter = require("./routes/client/seoRoutes");
 const clientBrandRouter = require("./routes/client/brandRoutes");
+const CoworkingSpace = require("./models/coworkingSpaceModel");
 const app = express();
 const AWS = require("aws-sdk");
 const contactFormRouter = require("./routes/client/contactFormRouter");
@@ -85,6 +86,52 @@ app.get("/", (req, res) => {
   res.send("API is running...");
 });
 // -----------------aws-s3------------------------
+// Define the API route to update the priority order
+app.put("/workspaces/priority", (req, res) => {
+  const { workspaceId, newPriorityOrder } = req.body;
+
+  CoworkingSpace.findById(workspaceId)
+    .then((workspace) => {
+      if (!workspace) {
+        return res.status(404).send("Workspace not found");
+      }
+
+      const oldPriorityOrder = workspace.priority.overall.order;
+
+      // Update the priority order of the specified workspace
+      workspace.priority.overall.order = newPriorityOrder;
+      workspace
+        .save()
+        .then(() => {
+          // Find all workspaces with the same old priority order
+          CoworkingSpace.updateMany(
+            { "priority.overall.order": oldPriorityOrder },
+            { $set: { "priority.overall.order": newPriorityOrder } }
+          )
+            .then(() => {
+              res.json({ message: "Priority order updated successfully" });
+            })
+            .catch((error) => {
+              console.error(
+                "Error while updating priority order for all workspaces",
+                error
+              );
+              res.status(500).send("Internal server error");
+            });
+        })
+        .catch((error) => {
+          console.error(
+            "Error while updating priority order for the workspace",
+            error
+          );
+          res.status(500).send("Internal server error");
+        });
+    })
+    .catch((error) => {
+      console.error("Error while finding the workspace", error);
+      res.status(500).send("Internal server error");
+    });
+});
 
 app.use("/api/user", userRoute);
 app.use("/api/allCountry", countryRoute);
