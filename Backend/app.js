@@ -86,51 +86,47 @@ app.get("/", (req, res) => {
   res.send("API is running...");
 });
 // -----------------aws-s3------------------------
-// Define the API route to update the priority order
-app.put("/workspaces/priority", (req, res) => {
-  const { workspaceId, newPriorityOrder } = req.body;
+app.put("/api/coworkingspaces/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { order } = req.body;
 
-  CoworkingSpace.findById(workspaceId)
-    .then((workspace) => {
-      if (!workspace) {
-        return res.status(404).send("Workspace not found");
-      }
+    // Find the coworking space to be updated
+    const coworkingSpaceToUpdate = await CoworkingSpace.findById(id);
 
-      const oldPriorityOrder = workspace.priority.overall.order;
+    if (!coworkingSpaceToUpdate) {
+      return res.status(404).json({ error: "Coworking space not found" });
+    }
 
-      // Update the priority order of the specified workspace
-      workspace.priority.overall.order = newPriorityOrder;
-      workspace
-        .save()
-        .then(() => {
-          // Find all workspaces with the same old priority order
-          CoworkingSpace.updateMany(
-            { "priority.overall.order": oldPriorityOrder },
-            { $set: { "priority.overall.order": newPriorityOrder } }
-          )
-            .then(() => {
-              res.json({ message: "Priority order updated successfully" });
-            })
-            .catch((error) => {
-              console.error(
-                "Error while updating priority order for all workspaces",
-                error
-              );
-              res.status(500).send("Internal server error");
-            });
-        })
-        .catch((error) => {
-          console.error(
-            "Error while updating priority order for the workspace",
-            error
-          );
-          res.status(500).send("Internal server error");
-        });
-    })
-    .catch((error) => {
-      console.error("Error while finding the workspace", error);
-      res.status(500).send("Internal server error");
-    });
+    const currentOrder = coworkingSpaceToUpdate.priority.order;
+
+    // Update the priority of the coworking space to the specified order
+    coworkingSpaceToUpdate.priority.order = order;
+
+    // If the order is set to the default value, deactivate the priority
+    if (order === 1000) {
+      coworkingSpaceToUpdate.priority.is_active = false;
+    } else {
+      coworkingSpaceToUpdate.priority.is_active = true;
+    }
+
+    await coworkingSpaceToUpdate.save();
+
+    // If the order is changed, update the remaining coworking spaces
+    if (order !== currentOrder) {
+      await CoworkingSpace.updateMany(
+        {
+          _id: { $ne: id }, // Exclude the current coworking space
+          "priority.order": { $gte: order },
+        },
+        { $inc: { "priority.order": -1 } }
+      );
+    }
+
+    res.json(coworkingSpaceToUpdate);
+  } catch (error) {
+    res.status(500).json({ error: "An error occurred" });
+  }
 });
 
 app.use("/api/user", userRoute);

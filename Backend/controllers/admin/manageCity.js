@@ -16,6 +16,25 @@ const postCity = asyncHandler(async (req, res) => {
     console.log(error);
   }
 });
+const addOrEditCity = asyncHandler(async (req, res) => {
+  const { name, country, state, active } = req.body;
+  const { id } = req.params;
+
+  City.findByIdAndUpdate(id, {
+    name,
+    country,
+
+    state,
+    active,
+  })
+    .then(() => res.send("updated successfully"))
+    .catch((err) => {
+      console.log(err);
+      res.send({
+        error: err,
+      });
+    });
+});
 const getCity = asyncHandler(async (req, res) => {
   await City.find({})
     .populate("country", "name")
@@ -45,4 +64,10 @@ const getCityByState = asyncHandler(async (req, res) => {
     })
     .catch((err) => console.log(err));
 });
-module.exports = { postCity, getCity, deleteCity, getCityByState };
+module.exports = {
+  postCity,
+  getCity,
+  deleteCity,
+  getCityByState,
+  addOrEditCity,
+};

@@ -67,10 +67,30 @@ const getMicroBycityName = asyncHandler(async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+const addOrEditMicrolocation = asyncHandler(async (req, res) => {
+  const { name, country, city, state, active } = req.body;
+  const { id } = req.params;
+
+  MicroLocation.findByIdAndUpdate(id, {
+    name,
+    country,
+    city,
+    state,
+    active,
+  })
+    .then(() => res.send("updated successfully"))
+    .catch((err) => {
+      console.log(err);
+      res.send({
+        error: err,
+      });
+    });
+});
 module.exports = {
   getMicroBycityName,
   getMicroLocation,
   postMicroLocation,
   deleteMicroLocation,
   getMicrolocationByCity,
+  addOrEditMicrolocation,
 };
