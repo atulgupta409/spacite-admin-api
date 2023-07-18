@@ -86,10 +86,11 @@ app.get("/", (req, res) => {
   res.send("API is running...");
 });
 // -----------------aws-s3------------------------
+
 app.put("/api/coworkingspaces/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { order } = req.body;
+    const { order, is_active, microlocationId } = req.body;
 
     // Find the coworking space to be updated
     const coworkingSpaceToUpdate = await CoworkingSpace.findById(id);
@@ -99,28 +100,38 @@ app.put("/api/coworkingspaces/:id", async (req, res) => {
     }
 
     const currentOrder = coworkingSpaceToUpdate.priority.order;
-
-    // Update the priority of the coworking space to the specified order
-    coworkingSpaceToUpdate.priority.order = order;
-
-    // If the order is set to the default value, deactivate the priority
-    if (order === 1000) {
-      coworkingSpaceToUpdate.priority.is_active = false;
-    } else {
-      coworkingSpaceToUpdate.priority.is_active = true;
+    if (
+      coworkingSpaceToUpdate.location.micro_location.toString() !==
+      microlocationId
+    ) {
+      return res.status(400).json({
+        error: "Coworking space does not belong to the specified microlocation",
+      });
     }
+    if (is_active === false && order === 1000) {
+      // Deactivate priority for the current coworking space
+      coworkingSpaceToUpdate.priority.is_active = false;
+      coworkingSpaceToUpdate.priority.order = order;
+      await coworkingSpaceToUpdate.save();
 
-    await coworkingSpaceToUpdate.save();
-
-    // If the order is changed, update the remaining coworking spaces
-    if (order !== currentOrder) {
+      // Decrement the higher order coworking spaces by one
       await CoworkingSpace.updateMany(
         {
+          "location.micro_location": microlocationId,
           _id: { $ne: id }, // Exclude the current coworking space
-          "priority.order": { $gte: order },
+          "priority.order": { $gt: currentOrder }, // Higher order workspaces
+          "priority.is_active": true,
         },
         { $inc: { "priority.order": -1 } }
       );
+    } else {
+      // Update the priority of the coworking space to the specified order
+      coworkingSpaceToUpdate.priority.order = order;
+
+      // Update the "is_active" field based on the specified order
+      coworkingSpaceToUpdate.priority.is_active = order !== 1000;
+
+      await coworkingSpaceToUpdate.save();
     }
 
     res.json(coworkingSpaceToUpdate);
@@ -129,6 +140,30 @@ app.put("/api/coworkingspaces/:id", async (req, res) => {
   }
 });
 
+app.put("/api/updateCoworkingSpacesPriority", async (req, res) => {
+  try {
+    const updatedSpaces = req.body; // The array of updated spaces sent from the client
+
+    // Loop through the updatedSpaces array and update each coworking space in the database
+    for (const space of updatedSpaces) {
+      const { _id, priority } = space;
+      // Find the coworking space by its _id and update its priority order
+      await CoworkingSpace.findByIdAndUpdate(_id, {
+        $set: {
+          "priority.order": priority.order,
+          "priority.is_active": priority.order !== 1000,
+        },
+      });
+    }
+
+    res.json({ message: "Priority updated successfully" });
+  } catch (error) {
+    console.error("Error updating priority:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while updating priority" });
+  }
+});
 app.use("/api/user", userRoute);
 app.use("/api/allCountry", countryRoute);
 app.use("/api/state", stateRoute);

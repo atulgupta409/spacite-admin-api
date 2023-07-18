@@ -178,59 +178,50 @@ const changeWorkSpaceStatus = asyncHandler(async (req, res) => {
   }
 });
 const changeWorkSpaceOrder = asyncHandler(async (req, res) => {
-  const { id, type, data } = req.body;
   try {
-    let object = _createDynamicPriorityType(type);
-    if (!data.is_active) {
-      const { priority } = await CoworkingSpace.findOne(
-        { _id: id },
-        { priority: 1 }
-      );
-      const priorityOrder = object + ".order";
-      const priorityActive = object + ".is_active";
-      const condition = {
-        [priorityOrder]: { $gt: priority[type].order },
-        [priorityActive]: true,
-      };
-      if (data.city) {
-        condition["location.city"] = data.city;
-      }
-      await CoworkingSpace.updateMany(condition, {
-        $inc: {
-          [priorityOrder]: -1,
-        },
-      });
+    const { id } = req.params;
+    const { order, is_active } = req.body;
+
+    // Find the coworking space to be updated
+    const coworkingSpaceToUpdate = await CoworkingSpace.findById(id);
+
+    if (!coworkingSpaceToUpdate) {
+      return res.status(404).json({ error: "Coworking space not found" });
     }
-    await CoworkingSpace.updateOne(
-      { _id: id },
-      {
-        $set: {
-          [object]: data,
+
+    const currentOrder = coworkingSpaceToUpdate.priority.order;
+
+    if (is_active === false && order === 1000) {
+      // Deactivate priority for the current coworking space
+      coworkingSpaceToUpdate.priority.is_active = false;
+      coworkingSpaceToUpdate.priority.order = order;
+      await coworkingSpaceToUpdate.save();
+
+      // Decrement the higher order coworking spaces by one
+      await CoworkingSpace.updateMany(
+        {
+          _id: { $ne: id }, // Exclude the current coworking space
+          "priority.order": { $gt: currentOrder }, // Higher order workspaces
+          "priority.is_active": true,
         },
-      }
-    );
-    res.status(200).json({
-      message: "Priority Spaces Added",
-    });
+        { $inc: { "priority.order": -1 } }
+      );
+    } else {
+      // Update the priority of the coworking space to the specified order
+      coworkingSpaceToUpdate.priority.order = order;
+
+      // Update the "is_active" field based on the specified order
+      coworkingSpaceToUpdate.priority.is_active = order !== 1000;
+
+      await coworkingSpaceToUpdate.save();
+    }
+
+    res.json(coworkingSpaceToUpdate);
   } catch (error) {
-    throw error;
+    res.status(500).json({ error: "An error occurred" });
   }
 });
-const _createDynamicPriorityType = (type) => {
-  let object = "priority.overall";
-  switch (type) {
-    case "location":
-      object = "priority.location";
-      break;
-    case "micro_location":
-      object = "priority.micro_location";
-      break;
-    default:
-      object = "priority.overall";
-      break;
-  }
-  return object;
-};
+
 const getWorkSpacesbyMicrolocation = asyncHandler(async (req, res) => {
   const microlocation = req.params.microlocation;
   const page = parseInt(req.query.page) || 1; // Current page number
@@ -278,6 +269,60 @@ const getWorkSpacesbyMicrolocation = asyncHandler(async (req, res) => {
   }
 });
 
+const getWorkSpacesbyMicrolocationWithPriority = asyncHandler(
+  async (req, res) => {
+    const microlocation = req.params.microlocation;
+    const page = parseInt(req.query.page) || 1; // Current page number
+    const limit = parseInt(req.query.limit) || 10; // Number of results per page
+
+    try {
+      const micro_location = await MicroLocation.findOne({
+        name: { $regex: new RegExp(microlocation, "i") },
+      }).exec();
+
+      if (!micro_location) {
+        return res.status(404).json({ error: "microlocation not found" });
+      }
+
+      const totalCount = await CoworkingSpace.countDocuments({
+        "location.micro_location": micro_location._id,
+        status: "approve",
+        "priority.order": { $nin: [0, 1000] }, // Exclude documents with priority.order equal to 1000
+      }).exec();
+
+      const totalPages = Math.ceil(totalCount / limit); // Calculate total number of pages
+      const count = await CoworkingSpace.countDocuments({
+        "location.micro_location": micro_location._id,
+        status: "approve",
+        "priority.order": { $nin: [0, 1000] }, // Exclude documents with priority.order equal to 1000
+      });
+
+      const coworkingSpaces = await CoworkingSpace.find({
+        "location.micro_location": micro_location._id,
+        status: "approve",
+        "priority.order": { $nin: [0, 1000] }, // Exclude documents with priority.order equal to 1000
+      })
+        .populate("amenties", "name")
+        .populate("brand", "name")
+        .populate("location.city", "name")
+        .populate("location.micro_location", "name")
+        .sort({ "priority.order": 1 }) // Sort by priority.order in ascending order
+        .skip((page - 1) * limit) // Skip results based on page number
+        .limit(limit) // Limit the number of results per page
+        .exec();
+
+      res.json({
+        totalPages,
+        totalCount: count,
+        currentPage: page,
+        coworkingSpaces,
+      });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+);
+
 module.exports = {
   postWorkSpaces,
   editWorkSpaces,
@@ -288,4 +333,5 @@ module.exports = {
   changeWorkSpaceStatus,
   getWorkSpacesbyMicrolocation,
   changeWorkSpaceOrder,
+  getWorkSpacesbyMicrolocationWithPriority,
 };

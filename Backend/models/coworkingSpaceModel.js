@@ -193,6 +193,10 @@ const coworkingSpaceModel = mongoose.Schema(
         type: Number,
         default: 1000,
       },
+      microlocationId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "MicroLocation",
+      },
     },
     is_popular: {
       value: {

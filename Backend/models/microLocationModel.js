@@ -20,6 +20,16 @@ const microLocationModel = mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    priority: {
+      is_active: {
+        type: Boolean,
+        default: false,
+      },
+      order: {
+        type: Number,
+        default: 1000,
+      },
+    },
   },
   {
     timestamps: true,
