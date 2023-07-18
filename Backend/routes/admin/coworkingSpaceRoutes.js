@@ -10,6 +10,7 @@ const {
   changeWorkSpaceStatus,
   getWorkSpacesbyMicrolocation,
   changeWorkSpaceOrder,
+  getWorkSpacesbyMicrolocationWithPriority,
 } = require("../../controllers/admin/coworkingSpaceController");
 const router = express.Router();
 
@@ -18,9 +19,14 @@ router
   .get("/workspaces/search", searchWorkSpacesByName)
   .get("/workSpaces/:workSpaceId", protect, getWorkSpacesById)
   .get("/coworking/:microlocation", protect, getWorkSpacesbyMicrolocation)
+  .get(
+    "/priority-workspace/:microlocation",
+
+    getWorkSpacesbyMicrolocationWithPriority
+  )
   .post("/workSpaces", protect, postWorkSpaces)
   .put("/workSpaces/changeStatus/:workSpaceId", protect, changeWorkSpaceStatus)
-  .put("/workSpaces/change-order/priority", changeWorkSpaceOrder)
+  .put("/coworkingspaces/:id", changeWorkSpaceOrder)
   .put("/workSpaces/:workSpaceId", protect, editWorkSpaces)
   .delete("/delete/:workSpaceId", protect, deleteWorkSpaces);
 
