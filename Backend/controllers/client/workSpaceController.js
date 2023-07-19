@@ -288,6 +288,59 @@ const getWorkSpacesbyLocation = asyncHandler(async (req, res) => {
       res.status(500).send("Internal server error");
     });
 });
+const getWorkSpacesbyMicrolocationWithPriority = asyncHandler(
+  async (req, res) => {
+    const microlocation = req.params.microlocation;
+    const page = parseInt(req.query.page) || 1; // Current page number
+    const limit = parseInt(req.query.limit) || 10; // Number of results per page
+
+    try {
+      const micro_location = await MicroLocation.findOne({
+        name: { $regex: new RegExp(microlocation, "i") },
+      }).exec();
+
+      if (!micro_location) {
+        return res.status(404).json({ error: "microlocation not found" });
+      }
+
+      const totalCount = await CoworkingSpace.countDocuments({
+        "location.micro_location": micro_location._id,
+        status: "approve",
+        "priority.order": { $nin: [0, 1000] }, // Exclude documents with priority.order equal to 1000
+      }).exec();
+
+      const totalPages = Math.ceil(totalCount / limit); // Calculate total number of pages
+      const count = await CoworkingSpace.countDocuments({
+        "location.micro_location": micro_location._id,
+        status: "approve",
+        "priority.order": { $nin: [0, 1000] }, // Exclude documents with priority.order equal to 1000
+      });
+
+      const coworkingSpaces = await CoworkingSpace.find({
+        "location.micro_location": micro_location._id,
+        status: "approve",
+        "priority.order": { $nin: [0, 1000] }, // Exclude documents with priority.order equal to 1000
+      })
+        .populate("amenties", "name")
+        .populate("brand", "name")
+        .populate("location.city", "name")
+        .populate("location.micro_location", "name")
+        .sort({ "priority.order": 1 }) // Sort by priority.order in ascending order
+        .skip((page - 1) * limit) // Skip results based on page number
+        .limit(limit) // Limit the number of results per page
+        .exec();
+
+      res.json({
+        totalPages,
+        totalCount: count,
+        currentPage: page,
+        coworkingSpaces,
+      });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+);
 module.exports = {
   getWorkSpaces,
   getWorkSpacesById,
@@ -299,4 +352,5 @@ module.exports = {
   getWorkSpacesbyBrand,
   getWorkSpacesbySlug,
   getWorkSpacesbyLocation,
+  getWorkSpacesbyMicrolocationWithPriority,
 };
