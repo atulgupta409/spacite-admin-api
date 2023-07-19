@@ -168,7 +168,7 @@ app.put("/api/updateCoworkingSpacesPriority", async (req, res) => {
 app.put("/api/priority-microlocation/:id", async (req, res) => {
   try {
     const { id } = req.params;
-    const { order, is_active, microlocationId } = req.body;
+    const { order, is_active, cityId } = req.body;
 
     // Find the coworking space to be updated
     const microlocationToUpdate = await MicroLocation.findById(id);
@@ -177,6 +177,11 @@ app.put("/api/priority-microlocation/:id", async (req, res) => {
     }
 
     const currentOrder = microlocationToUpdate.priority.order;
+    if (microlocationToUpdate.city.toString() !== cityId) {
+      return res.status(400).json({
+        error: "microlocation does not find",
+      });
+    }
     if (is_active === false && order === 1000) {
       // Deactivate priority for the current coworking space
       microlocationToUpdate.priority.is_active = false;
@@ -186,6 +191,7 @@ app.put("/api/priority-microlocation/:id", async (req, res) => {
       // Decrement the higher order coworking spaces by one
       await MicroLocation.updateMany(
         {
+          city: cityId,
           _id: { $ne: id }, // Exclude the current coworking space
           "priority.order": { $gt: currentOrder }, // Higher order workspaces
           "priority.is_active": true,
