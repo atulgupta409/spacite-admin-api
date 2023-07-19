@@ -29,6 +29,10 @@ const microLocationModel = mongoose.Schema(
         type: Number,
         default: 1000,
       },
+      city: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "City",
+      },
     },
   },
   {
