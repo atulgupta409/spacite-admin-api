@@ -258,12 +258,12 @@ const getWorkSpacesbyLocation = asyncHandler(async (req, res) => {
       CoworkingSpace.find({
         _id: { $ne: workspace._id },
         "location.latitude": {
-          $gte: workspace.location.latitude - 0.027,
-          $lte: workspace.location.latitude + 0.027,
+          $gte: workspace.location.latitude - 0.045,
+          $lte: workspace.location.latitude + 0.045,
         },
         "location.longitude": {
-          $gte: workspace.location.longitude - 0.027,
-          $lte: workspace.location.longitude + 0.027,
+          $gte: workspace.location.longitude - 0.045,
+          $lte: workspace.location.longitude + 0.045,
         },
       })
         .populate("amenties", "name")

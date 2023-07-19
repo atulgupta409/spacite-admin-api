@@ -14,7 +14,6 @@ router.post("/sendmail", (req, res) => {
       },
       secure: true,
     });
-    console.log(query);
     let emailContent;
     if (query) {
       emailContent = `<ul>
@@ -39,7 +38,7 @@ router.post("/sendmail", (req, res) => {
     const mailOptions = {
       from: email,
       to: process.env.EMAIL,
-      subject: "coworking mail",
+      subject: "Query from spacite",
       html: emailContent,
     };
 
