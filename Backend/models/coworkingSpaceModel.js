@@ -185,44 +185,17 @@ const coworkingSpaceModel = mongoose.Schema(
     },
     slug: String,
     priority: {
-      overall: {
-        is_active: {
-          type: Boolean,
-          default: false,
-        },
-        order: {
-          type: Number,
-          default: 1000,
-        },
+      is_active: {
+        type: Boolean,
+        default: false,
       },
-      location: {
-        city: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "City",
-        },
-        is_active: {
-          type: Boolean,
-          default: false,
-        },
-        order: {
-          type: Number,
-          default: 1000,
-        },
+      order: {
+        type: Number,
+        default: 1000,
       },
-      micro_location: {
-        name: String,
-        city: {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "City",
-        },
-        is_active: {
-          type: Boolean,
-          default: false,
-        },
-        order: {
-          type: Number,
-          default: 1000,
-        },
+      microlocationId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "MicroLocation",
       },
     },
     is_popular: {

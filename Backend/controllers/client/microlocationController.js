@@ -44,8 +44,30 @@ const getMicroBycityName = asyncHandler(async (req, res) => {
   }
 });
 
+const getMicrolocationWithPriority = asyncHandler(async (req, res) => {
+  try {
+    const cityname = req.params.cityname;
+    const city = await City.findOne({
+      name: cityname,
+    }).exec();
+
+    if (!city) {
+      return res.status(404).json({ error: "city not found" });
+    }
+    const microLocations = await MicroLocation.find({
+      city: city._id,
+      "priority.order": { $ne: 1000 }, // Exclude order 0 and 1000
+    }).sort({ "priority.order": 1 });
+
+    res.json(microLocations);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 module.exports = {
   getMicroLocation,
   getMicrolocationByCity,
   getMicroBycityName,
+  getMicrolocationWithPriority,
 };

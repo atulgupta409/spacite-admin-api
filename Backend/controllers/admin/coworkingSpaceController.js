@@ -178,72 +178,47 @@ const changeWorkSpaceStatus = asyncHandler(async (req, res) => {
   }
 });
 const changeWorkSpaceOrder = asyncHandler(async (req, res) => {
-  const { id } = req.params;
-  const { overall, location, micro_location } = req.body;
-
   try {
-    // Find the coworking space by ID
-    const coworkingSpace = await CoworkingSpace.findById(id);
+    const { id } = req.params;
+    const { order, is_active } = req.body;
 
-    if (!coworkingSpace) {
+    // Find the coworking space to be updated
+    const coworkingSpaceToUpdate = await CoworkingSpace.findById(id);
+
+    if (!coworkingSpaceToUpdate) {
       return res.status(404).json({ error: "Coworking space not found" });
     }
 
-    // Update the priority orders
-    if (overall) {
-      coworkingSpace.priority.overall.order = overall.order;
-      coworkingSpace.priority.overall.is_active = overall.is_active;
-    }
-    if (location) {
-      coworkingSpace.priority.location.order = location;
-    }
-    if (micro_location) {
-      coworkingSpace.priority.micro_location.order = micro_location;
-    }
+    const currentOrder = coworkingSpaceToUpdate.priority.order;
 
-    // Save the updated coworking space
-    await coworkingSpace.save();
+    if (is_active === false && order === 1000) {
+      // Deactivate priority for the current coworking space
+      coworkingSpaceToUpdate.priority.is_active = false;
+      coworkingSpaceToUpdate.priority.order = order;
+      await coworkingSpaceToUpdate.save();
 
-    res.json({ message: "Priority orders updated successfully" });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal server error" });
-  }
-});
-
-const addPriorityWorkSpaces = asyncHandler(async ({ id, data }) => {
-  try {
-    const { priority } = req.body;
-    const object = priority.overall;
-    if (!data.is_active) {
-      const { priority } = await CoworkingSpace.findOne(
-        { _id: id },
-        { priority: 1 }
+      // Decrement the higher order coworking spaces by one
+      await CoworkingSpace.updateMany(
+        {
+          _id: { $ne: id }, // Exclude the current coworking space
+          "priority.order": { $gt: currentOrder }, // Higher order workspaces
+          "priority.is_active": true,
+        },
+        { $inc: { "priority.order": -1 } }
       );
-      const priorityOrder = priority.priority.overall.order;
-      const priorityActive = priority.priority.overall.is_active;
+    } else {
+      // Update the priority of the coworking space to the specified order
+      coworkingSpaceToUpdate.priority.order = order;
 
-      const condition = {
-        [priorityOrder]: { $gt: priority[overall].order },
-        [priorityActive]: true,
-      };
-      await CoworkingSpace.updateMany(condition, {
-        $inc: {
-          [priorityOrder]: -1,
-        },
-      });
+      // Update the "is_active" field based on the specified order
+      coworkingSpaceToUpdate.priority.is_active = order !== 1000;
+
+      await coworkingSpaceToUpdate.save();
     }
-    await CoworkingSpace.updateOne(
-      { _id: id },
-      {
-        $set: {
-          [object]: data,
-        },
-      }
-    );
-    return true;
+
+    res.json(coworkingSpaceToUpdate);
   } catch (error) {
-    throw error;
+    res.status(500).json({ error: "An error occurred" });
   }
 });
 
@@ -294,6 +269,60 @@ const getWorkSpacesbyMicrolocation = asyncHandler(async (req, res) => {
   }
 });
 
+const getWorkSpacesbyMicrolocationWithPriority = asyncHandler(
+  async (req, res) => {
+    const microlocation = req.params.microlocation;
+    const page = parseInt(req.query.page) || 1; // Current page number
+    const limit = parseInt(req.query.limit) || 10; // Number of results per page
+
+    try {
+      const micro_location = await MicroLocation.findOne({
+        name: { $regex: new RegExp(microlocation, "i") },
+      }).exec();
+
+      if (!micro_location) {
+        return res.status(404).json({ error: "microlocation not found" });
+      }
+
+      const totalCount = await CoworkingSpace.countDocuments({
+        "location.micro_location": micro_location._id,
+        status: "approve",
+        "priority.order": { $nin: [0, 1000] }, // Exclude documents with priority.order equal to 1000
+      }).exec();
+
+      const totalPages = Math.ceil(totalCount / limit); // Calculate total number of pages
+      const count = await CoworkingSpace.countDocuments({
+        "location.micro_location": micro_location._id,
+        status: "approve",
+        "priority.order": { $nin: [0, 1000] }, // Exclude documents with priority.order equal to 1000
+      });
+
+      const coworkingSpaces = await CoworkingSpace.find({
+        "location.micro_location": micro_location._id,
+        status: "approve",
+        "priority.order": { $nin: [0, 1000] }, // Exclude documents with priority.order equal to 1000
+      })
+        .populate("amenties", "name")
+        .populate("brand", "name")
+        .populate("location.city", "name")
+        .populate("location.micro_location", "name")
+        .sort({ "priority.order": 1 }) // Sort by priority.order in ascending order
+        .skip((page - 1) * limit) // Skip results based on page number
+        .limit(limit) // Limit the number of results per page
+        .exec();
+
+      res.json({
+        totalPages,
+        totalCount: count,
+        currentPage: page,
+        coworkingSpaces,
+      });
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+);
+
 module.exports = {
   postWorkSpaces,
   editWorkSpaces,
@@ -303,5 +332,6 @@ module.exports = {
   searchWorkSpacesByName,
   changeWorkSpaceStatus,
   getWorkSpacesbyMicrolocation,
-  addPriorityWorkSpaces,
+  changeWorkSpaceOrder,
+  getWorkSpacesbyMicrolocationWithPriority,
 };
