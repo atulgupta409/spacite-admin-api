@@ -86,6 +86,21 @@ const addOrEditMicrolocation = asyncHandler(async (req, res) => {
       });
     });
 });
+
+const getMicrolocationWithPriority = asyncHandler(async (req, res) => {
+  try {
+    const cityId = req.params.cityId;
+
+    const microLocations = await MicroLocation.find({
+      city: cityId,
+      "priority.order": { $ne: 1000 }, // Exclude order 0 and 1000
+    }).sort({ "priority.order": 1 });
+
+    res.json(microLocations);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 module.exports = {
   getMicroBycityName,
   getMicroLocation,
@@ -93,4 +108,5 @@ module.exports = {
   deleteMicroLocation,
   getMicrolocationByCity,
   addOrEditMicrolocation,
+  getMicrolocationWithPriority,
 };

@@ -21,6 +21,7 @@ router
   .get("/coworking/:microlocation", protect, getWorkSpacesbyMicrolocation)
   .get(
     "/priority-workspace/:microlocation",
+    protect,
 
     getWorkSpacesbyMicrolocationWithPriority
   )
