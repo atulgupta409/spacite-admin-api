@@ -180,7 +180,7 @@ const changeWorkSpaceStatus = asyncHandler(async (req, res) => {
 const changeWorkSpaceOrder = asyncHandler(async (req, res) => {
   try {
     const { id } = req.params;
-    const { order, is_active } = req.body;
+    const { order, is_active, microlocationId } = req.body;
 
     // Find the coworking space to be updated
     const coworkingSpaceToUpdate = await CoworkingSpace.findById(id);
@@ -190,7 +190,14 @@ const changeWorkSpaceOrder = asyncHandler(async (req, res) => {
     }
 
     const currentOrder = coworkingSpaceToUpdate.priority.order;
-
+    if (
+      coworkingSpaceToUpdate.location.micro_location.toString() !==
+      microlocationId
+    ) {
+      return res.status(400).json({
+        error: "Coworking space does not belong to the specified microlocation",
+      });
+    }
     if (is_active === false && order === 1000) {
       // Deactivate priority for the current coworking space
       coworkingSpaceToUpdate.priority.is_active = false;
@@ -200,6 +207,7 @@ const changeWorkSpaceOrder = asyncHandler(async (req, res) => {
       // Decrement the higher order coworking spaces by one
       await CoworkingSpace.updateMany(
         {
+          "location.micro_location": microlocationId,
           _id: { $ne: id }, // Exclude the current coworking space
           "priority.order": { $gt: currentOrder }, // Higher order workspaces
           "priority.is_active": true,
@@ -322,7 +330,30 @@ const getWorkSpacesbyMicrolocationWithPriority = asyncHandler(
     }
   }
 );
+const changeWorkSpaceOrderbyDrag = asyncHandler(async (req, res) => {
+  try {
+    const updatedSpaces = req.body; // The array of updated spaces sent from the client
 
+    // Loop through the updatedSpaces array and update each coworking space in the database
+    for (const space of updatedSpaces) {
+      const { _id, priority } = space;
+      // Find the coworking space by its _id and update its priority order
+      await CoworkingSpace.findByIdAndUpdate(_id, {
+        $set: {
+          "priority.order": priority.order,
+          "priority.is_active": priority.order !== 1000,
+        },
+      });
+    }
+
+    res.json({ message: "Priority updated successfully" });
+  } catch (error) {
+    console.error("Error updating priority:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while updating priority" });
+  }
+});
 module.exports = {
   postWorkSpaces,
   editWorkSpaces,
@@ -334,4 +365,5 @@ module.exports = {
   getWorkSpacesbyMicrolocation,
   changeWorkSpaceOrder,
   getWorkSpacesbyMicrolocationWithPriority,
+  changeWorkSpaceOrderbyDrag,
 };
