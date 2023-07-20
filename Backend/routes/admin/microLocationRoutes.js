@@ -8,6 +8,8 @@ const {
   getMicroBycityName,
   addOrEditMicrolocation,
   getMicrolocationWithPriority,
+  changeOrderMicrolocation,
+  changeOrderMicrolocationbyDrag,
 } = require("../../controllers/admin/microlocationController");
 const router = express.Router();
 
@@ -18,6 +20,12 @@ router
     protect,
 
     getMicrolocationWithPriority
+  )
+  .put("/priority-microlocation/:id", protect, changeOrderMicrolocation)
+  .put(
+    "/update-microlocation-priority",
+    protect,
+    changeOrderMicrolocationbyDrag
   )
   .post("/microbycity", protect, getMicrolocationByCity)
   .post("/microlocations", protect, postMicroLocation)
