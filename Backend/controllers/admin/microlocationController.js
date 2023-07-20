@@ -143,7 +143,6 @@ const changeOrderMicrolocation = asyncHandler(async (req, res) => {
       });
     }
     if (is_active === false && order === 1000) {
-      // Deactivate priority for the current coworking space
       microlocationToUpdate.priority.is_active = false;
       microlocationToUpdate.priority.order = order;
       await microlocationToUpdate.save();

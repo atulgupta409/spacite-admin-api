@@ -341,6 +341,33 @@ const getWorkSpacesbyMicrolocationWithPriority = asyncHandler(
     }
   }
 );
+const getPopularWorkSpacesbyCity = asyncHandler(async (req, res) => {
+  const city = req.params.city;
+
+  try {
+    const city_data = await City.findOne({
+      name: city,
+    }).exec();
+
+    if (!city_data) {
+      return res.status(404).json({ error: "City not found" });
+    }
+
+    const coworkingSpaces = await CoworkingSpace.find({
+      "location.city": city_data._id,
+      status: "approve",
+      "is_popular.order": { $nin: [0, 1000] }, // Exclude documents with priority.order equal to 1000
+    })
+      .populate("location.city", "name")
+      .populate("location.micro_location", "name")
+      .sort({ "is_popular.order": 1 }) // Sort by priority.order in ascending order
+      .exec();
+
+    res.json(coworkingSpaces);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 module.exports = {
   getWorkSpaces,
   getWorkSpacesById,
@@ -353,4 +380,5 @@ module.exports = {
   getWorkSpacesbySlug,
   getWorkSpacesbyLocation,
   getWorkSpacesbyMicrolocationWithPriority,
+  getPopularWorkSpacesbyCity,
 };

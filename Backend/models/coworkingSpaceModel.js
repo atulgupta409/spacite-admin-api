@@ -199,12 +199,17 @@ const coworkingSpaceModel = mongoose.Schema(
       },
     },
     is_popular: {
-      value: {
+      status: {
         type: Boolean,
         default: false,
       },
       order: {
         type: Number,
+        default: 1000,
+      },
+      cityId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "City",
       },
     },
   },
