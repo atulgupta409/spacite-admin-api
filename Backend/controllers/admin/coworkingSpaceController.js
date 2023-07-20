@@ -1,6 +1,7 @@
 const asyncHandler = require("express-async-handler");
 const CoworkingSpace = require("../../models/coworkingSpaceModel");
 const MicroLocation = require("../../models/microLocationModel");
+const City = require("../../models/cityModel");
 
 const postWorkSpaces = asyncHandler(async (req, res) => {
   const {
@@ -354,6 +355,123 @@ const changeWorkSpaceOrderbyDrag = asyncHandler(async (req, res) => {
       .json({ error: "An error occurred while updating priority" });
   }
 });
+const popularWorkSpaceOrder = asyncHandler(async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { order, status, cityId } = req.body;
+
+    // Find the coworking space to be updated
+    const coworkingSpaceToUpdate = await CoworkingSpace.findById(id);
+
+    if (!coworkingSpaceToUpdate) {
+      return res.status(404).json({ error: "Coworking space not found" });
+    }
+
+    const currentOrder = coworkingSpaceToUpdate.is_popular.order;
+    if (coworkingSpaceToUpdate.location.city.toString() !== cityId) {
+      return res.status(400).json({
+        error: "Coworking space does not belong to the specified city",
+      });
+    }
+    if (status === false && order === 1000) {
+      // Deactivate priority for the current coworking space
+      coworkingSpaceToUpdate.is_popular.status = false;
+      coworkingSpaceToUpdate.is_popular.order = order;
+      await coworkingSpaceToUpdate.save();
+
+      // Decrement the higher order coworking spaces by one
+      await CoworkingSpace.updateMany(
+        {
+          "location.city": cityId,
+          _id: { $ne: id }, // Exclude the current coworking space
+          "is_popular.order": { $gt: currentOrder }, // Higher order workspaces
+          "is_popular.status": true,
+        },
+        { $inc: { "is_popular.order": -1 } }
+      );
+    } else {
+      // Update the priority of the coworking space to the specified order
+      coworkingSpaceToUpdate.is_popular.order = order;
+
+      // Update the "is_active" field based on the specified order
+      coworkingSpaceToUpdate.is_popular.status = order !== 1000;
+
+      await coworkingSpaceToUpdate.save();
+    }
+
+    res.json(coworkingSpaceToUpdate);
+  } catch (error) {
+    res.status(500).json({ error: "An error occurred" });
+  }
+});
+const popularWorkSpaceOrderByDrag = asyncHandler(async (req, res) => {
+  try {
+    const updatedSpaces = req.body; // The array of updated spaces sent from the client
+
+    // Loop through the updatedSpaces array and update each coworking space in the database
+    for (const space of updatedSpaces) {
+      const { _id, is_popular } = space;
+      // Find the coworking space by its _id and update its priority order
+      await CoworkingSpace.findByIdAndUpdate(_id, {
+        $set: {
+          "is_popular.order": is_popular.order,
+          "is_popular.status": is_popular.order !== 1000,
+        },
+      });
+    }
+
+    res.json({ message: "Priority updated successfully" });
+  } catch (error) {
+    console.error("Error updating priority:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while updating priority" });
+  }
+});
+const getWorkSpacesbyCityId = asyncHandler(async (req, res) => {
+  const { cityId } = req.params;
+
+  try {
+    const coworkingSpaces = await CoworkingSpace.find({
+      "location.city": cityId,
+      status: "approve",
+    })
+      .populate("location.city", "name")
+      .populate("location.micro_location", "name")
+      .exec();
+
+    res.json(coworkingSpaces);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+const getPopularWorkSpacesbyCity = asyncHandler(async (req, res) => {
+  const city = req.params.city;
+
+  try {
+    const city_data = await City.findOne({
+      name: city,
+    }).exec();
+
+    if (!city_data) {
+      return res.status(404).json({ error: "City not found" });
+    }
+
+    const coworkingSpaces = await CoworkingSpace.find({
+      "location.city": city_data._id,
+      status: "approve",
+      "is_popular.order": { $nin: [0, 1000] }, // Exclude documents with priority.order equal to 1000
+    })
+      .populate("location.city", "name")
+      .populate("location.micro_location", "name")
+      .sort({ "is_popular.order": 1 }) // Sort by priority.order in ascending order
+      .exec();
+
+    res.json(coworkingSpaces);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 module.exports = {
   postWorkSpaces,
   editWorkSpaces,
@@ -366,4 +484,8 @@ module.exports = {
   changeWorkSpaceOrder,
   getWorkSpacesbyMicrolocationWithPriority,
   changeWorkSpaceOrderbyDrag,
+  popularWorkSpaceOrder,
+  popularWorkSpaceOrderByDrag,
+  getWorkSpacesbyCityId,
+  getPopularWorkSpacesbyCity,
 };
