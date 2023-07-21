@@ -1,8 +1,9 @@
 const express = require("express");
 const cors = require("cors");
-const userRoute = require("./routes/admin/userRoutes");
+
 const connectDB = require("./config/db");
 const { notFound, errorHandle } = require("./middleware/errorMiddleware");
+const userRoute = require("./routes/admin/userRoutes");
 const countryRoute = require("./routes/admin/countryRoutes");
 const stateRoute = require("./routes/admin/stateRoutes");
 const imageUploadRouter = require("./routes/admin/imageUploadRoutes");
@@ -22,7 +23,6 @@ const ourClientRouter = require("./routes/admin/ourClientRoutes");
 const clientRouter = require("./routes/client/ourClientsRoutes");
 const clientSeoRouter = require("./routes/client/seoRoutes");
 const clientBrandRouter = require("./routes/client/brandRoutes");
-
 const app = express();
 const AWS = require("aws-sdk");
 const contactFormRouter = require("./routes/client/contactFormRouter");
