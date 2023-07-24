@@ -95,31 +95,51 @@ const getWorkSpacesbyCityId = asyncHandler(async (req, res) => {
   }
 });
 const getWorkSpacesbyMicrolocation = asyncHandler(async (req, res) => {
-  const microlocation = req.params.microlocation;
+  const { citySlug, microlocationSlug } = req.params;
   const page = parseInt(req.query.page) || 1; // Current page number
   const limit = parseInt(req.query.limit) || 10; // Number of results per page
 
   try {
-    const micro_location = await MicroLocation.findOne({
-      name: { $regex: new RegExp(microlocation, "i") },
-    }).exec();
+    const regexCitySlug = new RegExp(citySlug, "i");
+    const city = await City.findOne({ name: regexCitySlug }).exec();
 
-    if (!micro_location) {
-      return res.status(404).json({ error: "microlocation not found" });
+    if (!city) {
+      return res.status(404).json({ error: "City not found" });
     }
 
+    const regexMicrolocationSlug = new RegExp(microlocationSlug, "i");
+
+    // Find all microlocations with the matching name (case-insensitive) under the specific city
+    const microlocationsInCity = await MicroLocation.find({
+      name: regexMicrolocationSlug,
+      city: city._id,
+    }).exec();
+
+    if (microlocationsInCity.length === 0) {
+      return res.status(404).json({ error: "Microlocation not found" });
+    }
+
+    // Extract an array of microlocation ObjectId values
+    const microlocationIds = microlocationsInCity.map(
+      (microlocation) => microlocation._id
+    );
+
     const totalCount = await CoworkingSpace.countDocuments({
-      "location.micro_location": micro_location._id,
+      "location.city": city._id,
+      "location.micro_location": { $in: microlocationIds },
       status: "approve",
     }).exec();
 
     const totalPages = Math.ceil(totalCount / limit); // Calculate total number of pages
     const count = await CoworkingSpace.countDocuments({
-      "location.micro_location": micro_location._id,
+      "location.city": city._id,
+      "location.micro_location": { $in: microlocationIds },
       status: "approve",
     });
+
     const coworkingSpaces = await CoworkingSpace.find({
-      "location.micro_location": micro_location._id,
+      "location.city": city._id,
+      "location.micro_location": { $in: microlocationIds },
       status: "approve",
     })
       .populate("amenties", "name")
