@@ -12,6 +12,9 @@ const seoModel = mongoose.Schema(
     footer_title: String,
     footer_description: String,
     script: String,
+    header_description: {
+      type: String,
+    },
     status: {
       type: Boolean,
       default: true,
