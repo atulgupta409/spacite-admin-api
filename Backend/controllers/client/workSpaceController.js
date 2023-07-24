@@ -102,7 +102,6 @@ const getWorkSpacesbyMicrolocation = asyncHandler(async (req, res) => {
   try {
     const regexCitySlug = new RegExp(citySlug, "i");
     const city = await City.findOne({ name: regexCitySlug }).exec();
-
     if (!city) {
       return res.status(404).json({ error: "City not found" });
     }
@@ -114,7 +113,6 @@ const getWorkSpacesbyMicrolocation = asyncHandler(async (req, res) => {
       name: regexMicrolocationSlug,
       city: city._id,
     }).exec();
-
     if (microlocationsInCity.length === 0) {
       return res.status(404).json({ error: "Microlocation not found" });
     }
@@ -146,6 +144,7 @@ const getWorkSpacesbyMicrolocation = asyncHandler(async (req, res) => {
       .populate("brand", "name")
       .populate("location.city", "name")
       .populate("location.micro_location", "name")
+      .sort({ "priority.order": 1 })
       .skip((page - 1) * limit) // Skip results based on page number
       .limit(limit) // Limit the number of results per page
       .exec();
