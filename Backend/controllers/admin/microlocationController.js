@@ -101,6 +101,19 @@ const getMicrolocationWithPriority = asyncHandler(async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+const getMicrolocationForWorkspace = asyncHandler(async (req, res) => {
+  try {
+    const cityId = req.params.cityId;
+
+    const microLocations = await MicroLocation.find({
+      city: cityId,
+    }).sort({ "priority.order": 1 });
+
+    res.json(microLocations);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 const changeOrderMicrolocationbyDrag = asyncHandler(async (req, res) => {
   try {
     const updatedMicrolocation = req.body; // The array of updated spaces sent from the client
@@ -182,4 +195,5 @@ module.exports = {
   getMicrolocationWithPriority,
   changeOrderMicrolocationbyDrag,
   changeOrderMicrolocation,
+  getMicrolocationForWorkspace,
 };

@@ -46,10 +46,24 @@ const getStateByCountry = asyncHandler(async (req, res) => {
     .catch((err) => console.log(err));
 });
 
+const getStateWithPriority = asyncHandler(async (req, res) => {
+  try {
+    const country = req.params.id;
+
+    const states = await State.find({
+      country: country,
+    }).sort({ "priority.order": 1 });
+
+    res.json(states);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 module.exports = {
   getState,
   postState,
   addOrEditState,
   deleteState,
   getStateByCountry,
+  getStateWithPriority,
 };
