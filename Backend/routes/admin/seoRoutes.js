@@ -12,7 +12,7 @@ const router = express.Router();
 router
   .get("/seos", protect, getSeo)
   .get("/seos/:seoId", protect, getSeoById)
-  .post("/seos", protect, postSeo)
+  .post("/seos", postSeo)
   .put("/seos/:seoId", protect, addOrEditSeo)
   .delete("/delete/:seoId", protect, deleteSeo);
 
