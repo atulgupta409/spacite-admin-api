@@ -159,6 +159,50 @@ const getWorkSpacesbyMicrolocation = asyncHandler(async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+const getPriorityWorkSpacesbyCityandLocation = asyncHandler(
+  async (req, res) => {
+    const { city, location } = req.params;
+    try {
+      const regexCitySlug = new RegExp(city, "i");
+      const city_name = await City.findOne({ name: regexCitySlug }).exec();
+      if (!city_name) {
+        return res.status(404).json({ error: "City not found" });
+      }
+
+      const regexMicrolocationSlug = new RegExp(location, "i");
+
+      // Find all microlocations with the matching name (case-insensitive) under the specific city
+      const microlocationsInCity = await MicroLocation.find({
+        name: regexMicrolocationSlug,
+        city: city_name._id,
+      }).exec();
+      if (microlocationsInCity.length === 0) {
+        return res.status(404).json({ error: "Microlocation not found" });
+      }
+
+      // Extract an array of microlocation ObjectId values
+      const microlocationIds = microlocationsInCity.map(
+        (microlocation) => microlocation._id
+      );
+
+      const coworkingSpaces = await CoworkingSpace.find({
+        "location.city": city_name._id,
+        "location.micro_location": { $in: microlocationIds },
+        status: "approve",
+      })
+        .populate("amenties", "name")
+        .populate("brand", "name")
+        .populate("location.city", "name")
+        .populate("location.micro_location", "name")
+        .sort({ "priority.order": 1 })
+        .exec();
+
+      res.json(coworkingSpaces);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+);
 const getWorkSpacesbyMicrolocationId = asyncHandler(async (req, res) => {
   const microlocation = req.params.microlocation;
   const page = parseInt(req.query.page) || 1; // Current page number
@@ -400,4 +444,5 @@ module.exports = {
   getWorkSpacesbyLocation,
   getWorkSpacesbyMicrolocationWithPriority,
   getPopularWorkSpacesbyCity,
+  getPriorityWorkSpacesbyCityandLocation,
 };

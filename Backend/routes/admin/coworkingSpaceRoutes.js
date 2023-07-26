@@ -42,7 +42,7 @@ router
   .put("/update-priority", protect, changeWorkSpaceOrderbyDrag)
   .put("/popular-spaces/:id", protect, popularWorkSpaceOrder)
   .put("/update-popular", protect, popularWorkSpaceOrderByDrag)
-  .put("/workSpaces/:workSpaceId", protect, editWorkSpaces)
+  .put("/workSpaces/:workSpaceId", editWorkSpaces)
   .get("/coworking-details/:cityId", protect, getWorkSpacesbyCityId)
   .delete("/delete/:workSpaceId", protect, deleteWorkSpaces);
 

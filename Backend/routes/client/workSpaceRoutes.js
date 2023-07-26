@@ -12,6 +12,7 @@ const {
   getWorkSpacesbyLocation,
   getWorkSpacesbyMicrolocationWithPriority,
   getPopularWorkSpacesbyCity,
+  getPriorityWorkSpacesbyCityandLocation,
 } = require("../../controllers/client/workSpaceController");
 const router = express.Router();
 
@@ -38,6 +39,11 @@ router
     "/popular-workspace/:city",
 
     getPopularWorkSpacesbyCity
+  )
+  .get(
+    "/priority-city-workspace/:city/:location",
+
+    getPriorityWorkSpacesbyCityandLocation
   );
 
 module.exports = router;

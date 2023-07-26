@@ -95,6 +95,17 @@ const coworkingSpaceModel = mongoose.Schema(
         default: false,
       },
     },
+    geo_location: {
+      type: {
+        type: String,
+        enum: ["Point"], // We define this as a GeoJSON Point type
+        required: true,
+      },
+      coordinates: {
+        type: [Number],
+        required: true,
+      },
+    },
     hours_of_operation: {
       monday_friday: {
         from: String,
@@ -217,6 +228,6 @@ const coworkingSpaceModel = mongoose.Schema(
     timestamps: true,
   }
 );
-
+coworkingSpaceModel.index({ geo_location: "2dsphere" });
 const CoworkingSpace = mongoose.model("CoworkingSpace", coworkingSpaceModel);
 module.exports = CoworkingSpace;
