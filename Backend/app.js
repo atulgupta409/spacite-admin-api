@@ -23,7 +23,6 @@ const ourClientRouter = require("./routes/admin/ourClientRoutes");
 const clientRouter = require("./routes/client/ourClientsRoutes");
 const clientSeoRouter = require("./routes/client/seoRoutes");
 const clientBrandRouter = require("./routes/client/brandRoutes");
-const CoworkingSpace = require("./models/coworkingSpaceModel");
 const app = express();
 const AWS = require("aws-sdk");
 const contactFormRouter = require("./routes/client/contactFormRouter");
@@ -88,35 +87,6 @@ app.get("/", (req, res) => {
   res.send("API is running...");
 });
 // -----------------aws-s3------------------------
-app.get("/api/coworking_spaces/nearby", async (req, res) => {
-  const { latitude, longitude } = req.query;
-
-  try {
-    // Convert latitude and longitude to numbers
-    const lat = parseFloat(latitude);
-    const lon = parseFloat(longitude);
-
-    // Find nearby coworking spaces using the $geoNear aggregation
-    const nearbyCoworkingSpaces = await CoworkingSpace.aggregate([
-      {
-        $geoNear: {
-          near: {
-            type: "Point",
-            coordinates: [lon, lat], // NOTE: The order is longitude (X), then latitude (Y)!
-          },
-          distanceField: "distance",
-          maxDistance: 5000, // Adjust this value to set the maximum distance in meters (5 km in this example)
-          spherical: true,
-        },
-      },
-    ]);
-
-    res.json(nearbyCoworkingSpaces);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Error fetching nearby coworking spaces" });
-  }
-});
 app.use("/api/user", userRoute);
 app.use("/api/allCountry", countryRoute);
 app.use("/api/state", stateRoute);

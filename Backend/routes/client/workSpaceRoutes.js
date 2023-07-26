@@ -5,14 +5,13 @@ const {
   searchWorkSpacesByName,
   getWorkSpacesbyCity,
   getWorkSpacesbyMicrolocation,
-  getWorkSpacesbyMicrolocationId,
   getWorkSpacesbyCityId,
   getWorkSpacesbyBrand,
   getWorkSpacesbySlug,
   getWorkSpacesbyLocation,
-  getWorkSpacesbyMicrolocationWithPriority,
   getPopularWorkSpacesbyCity,
   getPriorityWorkSpacesbyCityandLocation,
+  getNearByWorkSpace,
 } = require("../../controllers/client/workSpaceController");
 const router = express.Router();
 
@@ -26,15 +25,9 @@ router
     "/workSpace-details/:citySlug/:microlocationSlug",
     getWorkSpacesbyMicrolocation
   )
-  .get("/coworking-details/:microlocation", getWorkSpacesbyMicrolocationId)
   .get("/coworking-details-brand/:brand", getWorkSpacesbyBrand)
   .get("/coworking-details-slug/:slug", getWorkSpacesbySlug)
   .get("/workspaces/slug/:workspaceSlug", getWorkSpacesbyLocation)
-  .get(
-    "/priority-workspace/:microlocation",
-
-    getWorkSpacesbyMicrolocationWithPriority
-  )
   .get(
     "/popular-workspace/:city",
 
@@ -44,6 +37,11 @@ router
     "/priority-city-workspace/:city/:location",
 
     getPriorityWorkSpacesbyCityandLocation
+  )
+  .get(
+    "/coworking_spaces/nearby",
+
+    getNearByWorkSpace
   );
 
 module.exports = router;
