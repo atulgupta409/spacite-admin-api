@@ -100,13 +100,13 @@ const getWorkSpacesbyMicrolocation = asyncHandler(async (req, res) => {
   const limit = parseInt(req.query.limit) || 10; // Number of results per page
 
   try {
-    const regexCitySlug = new RegExp(citySlug, "i");
+    const regexCitySlug = new RegExp(`^${citySlug}$`, "i");
     const city = await City.findOne({ name: regexCitySlug }).exec();
     if (!city) {
       return res.status(404).json({ error: "City not found" });
     }
 
-    const regexMicrolocationSlug = new RegExp(microlocationSlug, "i");
+    const regexMicrolocationSlug = new RegExp(`^${microlocationSlug}$`, "i");
 
     // Find all microlocations with the matching name (case-insensitive) under the specific city
     const microlocationsInCity = await MicroLocation.find({
@@ -163,13 +163,13 @@ const getPriorityWorkSpacesbyCityandLocation = asyncHandler(
   async (req, res) => {
     const { city, location } = req.params;
     try {
-      const regexCitySlug = new RegExp(city, "i");
+      const regexCitySlug = new RegExp(`^${city}$`, "i");
       const city_name = await City.findOne({ name: regexCitySlug }).exec();
       if (!city_name) {
         return res.status(404).json({ error: "City not found" });
       }
 
-      const regexMicrolocationSlug = new RegExp(location, "i");
+      const regexMicrolocationSlug = new RegExp(`^${location}$`, "i");
 
       // Find all microlocations with the matching name (case-insensitive) under the specific city
       const microlocationsInCity = await MicroLocation.find({
@@ -203,40 +203,6 @@ const getPriorityWorkSpacesbyCityandLocation = asyncHandler(
     }
   }
 );
-const getWorkSpacesbyMicrolocationId = asyncHandler(async (req, res) => {
-  const microlocation = req.params.microlocation;
-  const page = parseInt(req.query.page) || 1; // Current page number
-  const limit = parseInt(req.query.limit) || 10; // Number of results per page
-
-  try {
-    // Calculate total number of pages
-    const count = await CoworkingSpace.countDocuments({
-      "location.micro_location": microlocation,
-      status: "approve",
-    });
-    const totalPages = Math.ceil(count / limit);
-    const coworkingSpaces = await CoworkingSpace.find({
-      "location.micro_location": microlocation,
-      status: "approve",
-    })
-      .populate("amenties", "name")
-      .populate("brand", "name")
-      .populate("location.city", "name")
-      .populate("location.micro_location", "name")
-      .skip((page - 1) * limit) // Skip results based on page number
-      .limit(limit) // Limit the number of results per page
-      .exec();
-
-    res.json({
-      totalPages,
-      totalCount: count,
-      currentPage: page,
-      coworkingSpaces,
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
 
 const getWorkSpacesbyBrand = asyncHandler(async (req, res) => {
   const brand = req.params.brand;
@@ -351,65 +317,14 @@ const getWorkSpacesbyLocation = asyncHandler(async (req, res) => {
       res.status(500).send("Internal server error");
     });
 });
-const getWorkSpacesbyMicrolocationWithPriority = asyncHandler(
-  async (req, res) => {
-    const microlocation = req.params.microlocation;
-    const page = parseInt(req.query.page) || 1; // Current page number
-    const limit = parseInt(req.query.limit) || 10; // Number of results per page
 
-    try {
-      const micro_location = await MicroLocation.findOne({
-        name: { $regex: new RegExp(microlocation, "i") },
-      }).exec();
-
-      if (!micro_location) {
-        return res.status(404).json({ error: "microlocation not found" });
-      }
-
-      const totalCount = await CoworkingSpace.countDocuments({
-        "location.micro_location": micro_location._id,
-        status: "approve",
-        "priority.order": { $nin: [0, 1000] }, // Exclude documents with priority.order equal to 1000
-      }).exec();
-
-      const totalPages = Math.ceil(totalCount / limit); // Calculate total number of pages
-      const count = await CoworkingSpace.countDocuments({
-        "location.micro_location": micro_location._id,
-        status: "approve",
-        "priority.order": { $nin: [0, 1000] }, // Exclude documents with priority.order equal to 1000
-      });
-
-      const coworkingSpaces = await CoworkingSpace.find({
-        "location.micro_location": micro_location._id,
-        status: "approve",
-        "priority.order": { $nin: [0, 1000] }, // Exclude documents with priority.order equal to 1000
-      })
-        .populate("amenties", "name")
-        .populate("brand", "name")
-        .populate("location.city", "name")
-        .populate("location.micro_location", "name")
-        .sort({ "priority.order": 1 }) // Sort by priority.order in ascending order
-        .skip((page - 1) * limit) // Skip results based on page number
-        .limit(limit) // Limit the number of results per page
-        .exec();
-
-      res.json({
-        totalPages,
-        totalCount: count,
-        currentPage: page,
-        coworkingSpaces,
-      });
-    } catch (error) {
-      res.status(500).json({ error: error.message });
-    }
-  }
-);
 const getPopularWorkSpacesbyCity = asyncHandler(async (req, res) => {
   const city = req.params.city;
 
   try {
+    const regexCity = new RegExp(`^${city}$`, "i");
     const city_data = await City.findOne({
-      name: city,
+      name: regexCity,
     }).exec();
 
     if (!city_data) {
@@ -431,18 +346,47 @@ const getPopularWorkSpacesbyCity = asyncHandler(async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+const getNearByWorkSpace = asyncHandler(async (req, res) => {
+  const { latitude, longitude } = req.query;
+
+  try {
+    // Convert latitude and longitude to numbers
+    const lat = parseFloat(latitude);
+    const lon = parseFloat(longitude);
+
+    // Find nearby coworking spaces using the $geoNear aggregation
+    const nearbyCoworkingSpaces = await CoworkingSpace.aggregate([
+      {
+        $geoNear: {
+          near: {
+            type: "Point",
+            coordinates: [lon, lat], // NOTE: The order is longitude (X), then latitude (Y)!
+          },
+          distanceField: "distance",
+          maxDistance: 5000, // Adjust this value to set the maximum distance in meters (5 km in this example)
+          spherical: true,
+          query: { status: "approve" },
+        },
+      },
+    ]);
+
+    res.json(nearbyCoworkingSpaces);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error fetching nearby coworking spaces" });
+  }
+});
 module.exports = {
   getWorkSpaces,
   getWorkSpacesById,
   getWorkSpacesbyCity,
   searchWorkSpacesByName,
   getWorkSpacesbyMicrolocation,
-  getWorkSpacesbyMicrolocationId,
   getWorkSpacesbyCityId,
   getWorkSpacesbyBrand,
   getWorkSpacesbySlug,
   getWorkSpacesbyLocation,
-  getWorkSpacesbyMicrolocationWithPriority,
   getPopularWorkSpacesbyCity,
   getPriorityWorkSpacesbyCityandLocation,
+  getNearByWorkSpace,
 };
