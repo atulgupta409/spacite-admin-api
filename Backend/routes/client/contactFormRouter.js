@@ -3,7 +3,16 @@ const router = express.Router();
 const nodemailer = require("nodemailer");
 
 router.post("/sendmail", (req, res) => {
-  const { name, email, phone, office_type, no_of_seats, move_in } = req.body;
+  const {
+    name,
+    email,
+    phone,
+    office_type,
+    no_of_seats,
+    move_in,
+    query,
+    location,
+  } = req.body;
   try {
     const transporter = nodemailer.createTransport({
       service: "gmail",
@@ -13,19 +22,34 @@ router.post("/sendmail", (req, res) => {
       },
       secure: true,
     });
+    let emailContent;
+    if (query) {
+      emailContent = `<ul>
+      <li>Name: ${name}</li>
+      <li>Email: ${email}</li>
+      <li>Phone: ${phone}</li>
+      <li>Office Type: ${office_type}</li>
+      <li>No. of seats: ${no_of_seats}</li>
+      <li>Query: ${query}</li>
+      <li>Page Location: ${location}</li>
+    </ul>`;
+    } else {
+      emailContent = `<ul>
+      <li>Name: ${name}</li>
+      <li>Email: ${email}</li>
+      <li>Phone: ${phone}</li>
+      <li>Office Type: ${office_type}</li>
+      <li>No. of seats: ${no_of_seats}</li>
+      <li>Move in: ${move_in}</li>
+      <li>Page Location: ${location}</li>
+    </ul>`;
+    }
 
     const mailOptions = {
       from: email,
       to: process.env.EMAIL,
-      subject: "coworking mail",
-      html: `<ul>
-       <li>Name: ${name}</li>
-       <li>Email: ${email}</li>
-       <li>Phone: ${phone}</li>
-       <li>Office Type: ${office_type}</li>
-       <li>No. of seats: ${no_of_seats}</li>
-       <li>Move in: ${move_in}</li>
-      </ul>`,
+      subject: "Query from spacite",
+      html: emailContent,
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
