@@ -368,8 +368,41 @@ const getNearByWorkSpace = asyncHandler(async (req, res) => {
           query: { status: "approve" },
         },
       },
+      {
+        $lookup: {
+          from: "microlocations", // Replace "microlocations" with the actual collection name for microlocations
+          localField: "location.micro_location",
+          foreignField: "_id",
+          as: "microlocationData",
+        },
+      },
+      {
+        $unwind: "$microlocationData",
+      },
+      {
+        $lookup: {
+          from: "cities", // Replace "cities" with the actual collection name for cities
+          localField: "location.city",
+          foreignField: "_id",
+          as: "cityData",
+        },
+      },
+      {
+        $unwind: "$cityData",
+      },
+      {
+        $addFields: {
+          "location.micro_location": "$microlocationData.name",
+          "location.city": "$cityData.name",
+        },
+      },
+      {
+        $project: {
+          microlocationData: 0, // Exclude microlocationData field from the final result
+          cityData: 0, // Exclude cityData field from the final result
+        },
+      },
     ]);
-
     res.json(nearbyCoworkingSpaces);
   } catch (error) {
     console.error(error);
