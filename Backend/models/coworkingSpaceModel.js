@@ -99,11 +99,9 @@ const coworkingSpaceModel = mongoose.Schema(
       type: {
         type: String,
         enum: ["Point"], // We define this as a GeoJSON Point type
-        required: true,
       },
       coordinates: {
         type: [Number],
-        required: true,
       },
     },
     hours_of_operation: {
