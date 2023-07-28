@@ -35,7 +35,7 @@ router
 
     getPopularWorkSpacesbyCity
   )
-  .post("/workSpaces", protect, postWorkSpaces)
+  .post("/workSpaces", postWorkSpaces)
   .put("/workSpaces/changeStatus/:workSpaceId", protect, changeWorkSpaceStatus)
   .put("/coworkingspaces/:id", protect, changeWorkSpaceOrder)
   .put("/update-priority", protect, changeWorkSpaceOrderbyDrag)
