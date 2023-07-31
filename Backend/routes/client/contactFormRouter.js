@@ -11,6 +11,9 @@ router.post("/sendmail", (req, res) => {
     no_of_seats,
     move_in,
     query,
+    your_city,
+    plan_type,
+    when_to,
     location,
   } = req.body;
   try {
@@ -31,6 +34,16 @@ router.post("/sendmail", (req, res) => {
       <li>Office Type: ${office_type}</li>
       <li>No. of seats: ${no_of_seats}</li>
       <li>Query: ${query}</li>
+      <li>Page Location: ${location}</li>
+    </ul>`;
+    } else if (your_city) {
+      emailContent = `<ul>
+      <li>Name: ${name}</li>
+      <li>Email: ${email}</li>
+      <li>Phone: ${phone}</li>
+      <li>City: ${your_city}</li>
+      <li>Plan Type: ${plan_type}</li>
+      <li>When To: ${when_to}</li>
       <li>Page Location: ${location}</li>
     </ul>`;
     } else {
