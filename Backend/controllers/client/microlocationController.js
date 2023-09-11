@@ -57,7 +57,7 @@ const getMicrolocationWithPriority = asyncHandler(async (req, res) => {
     const microLocations = await MicroLocation.find({
       city: city._id,
       "priority.order": { $ne: 1000 }, // Exclude order 0 and 1000
-    }).sort({ "priority.order": 1 });
+    }).sort({ "priority.order": 1 }).exec();
 
     res.json(microLocations);
   } catch (err) {

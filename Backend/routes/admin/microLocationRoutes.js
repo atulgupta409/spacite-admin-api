@@ -11,6 +11,7 @@ const {
   changeOrderMicrolocation,
   changeOrderMicrolocationbyDrag,
   getMicrolocationForWorkspace,
+  getActiveMicrolocation
 } = require("../../controllers/admin/microlocationController");
 const router = express.Router();
 
@@ -27,6 +28,10 @@ router
     protect,
 
     getMicrolocationForWorkspace
+  )
+  .get(
+    "/active-location",
+   getActiveMicrolocation
   )
   .put("/priority-microlocation/:id", protect, changeOrderMicrolocation)
   .put(
