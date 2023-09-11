@@ -38,6 +38,7 @@ const s3Client = new AWS.S3({
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+app.use(express.static('public'));
 app.use(cors());
 app.use(contactFormRouter);
 
