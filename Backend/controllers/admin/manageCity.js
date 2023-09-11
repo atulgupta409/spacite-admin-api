@@ -35,6 +35,14 @@ const addOrEditCity = asyncHandler(async (req, res) => {
       });
     });
 });
+const getActiveCity = asyncHandler(async (req, res) => {
+  try {
+    const cities = await City.find({active: true})
+    res.send(cities)
+  } catch (error) {
+    console.log(error)
+  }
+})
 const getCity = asyncHandler(async (req, res) => {
   await City.find({})
     .populate("country", "name")
@@ -70,4 +78,5 @@ module.exports = {
   deleteCity,
   getCityByState,
   addOrEditCity,
+  getActiveCity
 };

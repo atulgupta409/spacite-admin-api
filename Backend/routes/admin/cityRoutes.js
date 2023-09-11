@@ -6,11 +6,13 @@ const {
   deleteCity,
   getCityByState,
   addOrEditCity,
+  getActiveCity
 } = require("../../controllers/admin/manageCity");
 const router = express.Router();
 
 router
   .get("/cities", protect, getCity)
+  .get("/active-cities", getActiveCity)
   .post("/cities", protect, postCity)
   .delete("/delete/:cityId", protect, deleteCity)
   .post("/citybystate", protect, getCityByState)

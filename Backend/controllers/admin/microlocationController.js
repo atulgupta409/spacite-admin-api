@@ -28,6 +28,14 @@ const postMicroLocation = asyncHandler(async (req, res) => {
     console.log(error);
   }
 });
+const getActiveMicrolocation = asyncHandler(async(req, res) => {
+  try {
+    const locations = await MicroLocation.find({active: true}).populate("city", "name")
+    res.send(locations)
+  } catch (error) {
+    console.log(error)
+  }
+})
 const deleteMicroLocation = asyncHandler(async (req, res) => {
   const { microlocationId } = req.params;
   await MicroLocation.findByIdAndDelete(microlocationId)
@@ -196,4 +204,5 @@ module.exports = {
   changeOrderMicrolocationbyDrag,
   changeOrderMicrolocation,
   getMicrolocationForWorkspace,
+  getActiveMicrolocation
 };
