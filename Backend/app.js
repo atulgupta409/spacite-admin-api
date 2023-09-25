@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-
+const compression = require('compression');
 const connectDB = require("./config/db");
 const { notFound, errorHandle } = require("./middleware/errorMiddleware");
 const userRoute = require("./routes/admin/userRoutes");
@@ -37,6 +37,7 @@ const s3Client = new AWS.S3({
 });
 
 app.use(express.urlencoded({ extended: false }));
+app.use(compression());
 app.use(express.json());
 app.use(express.static('public'));
 app.use(cors());
