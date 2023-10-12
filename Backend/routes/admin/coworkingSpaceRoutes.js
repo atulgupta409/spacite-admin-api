@@ -23,11 +23,11 @@ const router = express.Router();
 router
   .get("/workSpaces", protect, getWorkSpaces)
   .get("/workspaces/search", searchWorkSpacesByName)
-  .get("/workSpaces/:workSpaceId", getWorkSpacesById)
+  .get("/workSpaces/:workSpaceId",protect, getWorkSpacesById)
   .delete("/:projectId/images/:imageId",protect, deleteProjectImage)
-  .get("/coworking/:microlocation", getWorkSpacesbyMicrolocation)
+  .get("/coworking/:microlocation",protect, getWorkSpacesbyMicrolocation)
   .get(
-    "/priority-workspace/:microlocation",
+    "/priority-workspace/:microlocation",protect,
 
     getWorkSpacesbyMicrolocationWithPriority
   )
@@ -37,7 +37,7 @@ router
 
     getPopularWorkSpacesbyCity
   )
-  .post("/workSpaces", postWorkSpaces)
+  .post("/workSpaces",protect, postWorkSpaces)
   .put("/workSpaces/changeStatus/:workSpaceId", protect, changeWorkSpaceStatus)
   .put("/coworkingspaces/:id", protect, changeWorkSpaceOrder)
   .put("/update-priority", protect, changeWorkSpaceOrderbyDrag)
