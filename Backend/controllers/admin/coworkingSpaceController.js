@@ -134,9 +134,10 @@ const deleteWorkSpaces = asyncHandler(async (req, res) => {
 
 const getWorkSpacesById = asyncHandler(async (req, res) => {
   try {
+    const {workSpaceId} = req.params;
     const workSpace = await CoworkingSpace.findById(
-      req.params.workSpaceId
-    ).exec();
+      workSpaceId)
+      .exec();
     res.status(200).json(workSpace);
   } catch (error) {
     res.status(404).json({ message: error.message });
@@ -413,6 +414,38 @@ const getPopularWorkSpacesbyCity = asyncHandler(async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+const deleteProjectImage = asyncHandler(async (req, res) => {
+  try {
+    const { projectId, imageId } = req.params;
+
+    // Fetch the project by its ID
+    const project = await CoworkingSpace.findById(projectId);
+
+    if (!project) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    // Find the index of the image to be deleted in the "images" array
+    const imageIndex = project.images.findIndex(image => image._id == imageId);
+
+    if (imageIndex === -1) {
+      return res.status(404).json({ message: "Image not found in project" });
+    }
+
+    // Remove the image from the "images" array
+    project.images.splice(imageIndex, 1);
+
+    // Save the updated project
+    await project.save();
+
+    // Optionally, you can also delete the image file from your storage here
+
+    res.status(200).json({ message: "Image deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting image:", error);
+    res.status(500).json({ error: "An error occurred while deleting the image" });
+  }
+});
 module.exports = {
   postWorkSpaces,
   editWorkSpaces,
@@ -429,4 +462,5 @@ module.exports = {
   popularWorkSpaceOrderByDrag,
   getWorkSpacesbyCityId,
   getPopularWorkSpacesbyCity,
+  deleteProjectImage
 };

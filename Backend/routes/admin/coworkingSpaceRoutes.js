@@ -16,13 +16,15 @@ const {
   popularWorkSpaceOrderByDrag,
   getWorkSpacesbyCityId,
   getPopularWorkSpacesbyCity,
+  deleteProjectImage
 } = require("../../controllers/admin/coworkingSpaceController");
 const router = express.Router();
 
 router
   .get("/workSpaces", protect, getWorkSpaces)
   .get("/workspaces/search", searchWorkSpacesByName)
-  .get("/workSpaces/:workSpaceId", protect, getWorkSpacesById)
+  .get("/workSpaces/:workSpaceId", getWorkSpacesById)
+  .delete("/:projectId/images/:imageId",protect, deleteProjectImage)
   .get("/coworking/:microlocation", getWorkSpacesbyMicrolocation)
   .get(
     "/priority-workspace/:microlocation",
