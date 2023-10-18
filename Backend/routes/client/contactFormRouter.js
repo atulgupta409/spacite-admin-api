@@ -15,6 +15,7 @@ router.post("/sendmail", (req, res) => {
     plan_type,
     when_to,
     location,
+    city
   } = req.body;
   try {
     const transporter = nodemailer.createTransport({
@@ -55,6 +56,7 @@ router.post("/sendmail", (req, res) => {
       <li>No. of seats: ${no_of_seats}</li>
       <li>Move in: ${move_in}</li>
       <li>Page Location: ${location}</li>
+      <li>City: ${city}</li>
     </ul>`;
     }
 
